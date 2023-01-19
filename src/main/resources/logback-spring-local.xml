@@ -1,0 +1,19 @@
+<configuration>
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- Use the layout below for local dev for better visualization
+             instead of the LogstashEncoder above -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                <!-- add %X{trace_id}, %X{span_id} and %X{trace_flags} to see trace
+                     info -->
+                %yellow(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%logger{36}): %msg%n%throwable
+            </Pattern>
+        </layout>
+    </appender>
+    <logger name="net.accelbyte" additivity="false" level="debug">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+    <root level="info">
+        <appender-ref ref="consoleAppender"/>
+    </root>
+</configuration>

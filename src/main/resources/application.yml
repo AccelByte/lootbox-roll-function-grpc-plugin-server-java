@@ -1,0 +1,47 @@
+plugin:
+  grpc:
+    config:
+      namespace: ${AB_NAMESPACE:accelbyte}
+      resource_name: 'PLRGRPCSERVICE'
+    server:
+      interceptor:
+        debug-logger:
+          enabled: false
+        auth:
+          enabled: ${PLUGIN_GRPC_SERVER_AUTH_ENABLED:true}
+
+grpc:
+  enable-reflection: true
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: "/"
+      exposure:
+        include: "prometheus"
+      path-mapping:
+        prometheus: "metrics"
+  endpoint:
+    prometheus:
+      enabled: true
+
+spring:
+  main:
+    banner-mode: off
+
+# for Spring Boot configuration which uses logback, you can add MDC to log lines by overriding only the
+#  logging.pattern.level
+# Example json log output:
+#  {"@timestamp":"2022-08-26T22:45:51.261-07:00","@version":"1",
+#    "message":"on complete. unmatched tickets size: 1",
+#    "logger_name":"net.accelbyte.matchmaking.matchfunction.service.MatchFunctionService",
+#    "thread_name":"grpc-default-executor-0","level":"INFO","level_value":20000,
+#    "AWS-XRAY-TRACE-ID":"1-00000000-0000000048ad2e79afaff8ba@6fdb944e002af5dd",
+#    "trace_id":"000000000000000048ad2e79afaff8ba","trace_flags":"01",
+#    "span_id":"6fdb944e002af5dd"}
+
+logging:
+  pattern:
+    level: trace_id=%mdc{trace_id} span_id=%mdc{span_id} trace_flags=%mdc{trace_flags} %5p
+

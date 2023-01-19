@@ -1,0 +1,35 @@
+# Copyright (c) 2018-2019 AccelByte Inc. All Rights Reserved.
+# This is licensed software from AccelByte Inc, for limitations
+# and restrictions contact your company contract manager.
+
+version: '3'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "6565:6565"
+      - "8080:8080"
+    environment:
+      - AB_BASE_URL
+      - AB_CLIENT_ID
+      - AB_CLIENT_SECRET
+      - AB_NAMESPACE
+      - PLUGIN_GRPC_SERVER_AUTH_ENABLED
+      - OTEL_EXPORTER_ZIPKIN_ENDPOINT=http://host.docker.internal:9411/api/v2/spans
+      - OTEL_TRACES_EXPORTER=zipkin
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_SERVICE_NAME=CustomLootboxRollFunctionServerJava
+      - OTEL_PROPAGATORS=b3multi
+    logging:
+      driver: loki
+      options:
+        loki-url: http://localhost:3100/loki/api/v1/push
+        mode: non-blocking
+        max-buffer-size: 4m
+        loki-retries: "3"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
+
