@@ -1,6 +1,6 @@
-# matchmaking-function-grpc-plugin-server-java
+# lootbox-roll-function-grpc-plugin-server-java
 
-This repository contains `gRPC server` sample app (Java) for AccelByte Cloud service `matchmaking function` customization.
+This repository contains `gRPC server` sample app (Java) for AccelByte Cloud service `lootbox roll function` customization.
 
 The `gRPC server` is a part of AccelByte Cloud service customization gRPC plugin architecture.
 
@@ -41,7 +41,7 @@ flowchart LR
 
     c. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with confidential client type with the following permission. Keep the `Client ID` and `Client Secret`.
 
-       - NAMESPACE:{namespace}:MMV2GRPCSERVICE - READ
+       - NAMESPACE:{namespace}:PLRGRPCSERVICE - READ
 
 ## Setup
 
@@ -99,51 +99,15 @@ The functionality of `gRPC server` methods can be tested in local development en
 
 2. Make sure this sample `gRPC server` is also up and running.
 
-3. Run the corresponding `gRPC client` as a stand in for the actual `gRPC client` in AccelByte Cloud, for example `matchmaking-function-grpc-plugin-client-go`.
+3. Run the corresponding `gRPC client` as a stand in for the actual `gRPC client` in AccelByte Cloud, for example `lootbox-roll-function-grpc-plugin-client-java`.
 
-   a. Clone `matchmaking-function-grpc-plugin-client-go` repository. 
+   a. Clone `lootbox-roll-function-grpc-plugin-client-java` repository. 
 
    b. Follow the `README.md` inside to setup, build, and run it.
 
    c. Try it out! See the instruction in `README.md`.
 
 > :exclamation: **Sample `gRPC server` and `gRPC client` does not have to be implemented in the same programming language**: As long as the gRPC proto is compatible, they should be able to communicate with each other.
-
-### Test Integration with AccelByte Cloud
-
-After testing functionality in local development environment, to allow the actual `gRPC client` in AccelByte Cloud demo environment to access `gRPC server` in local development environment without requiring a public IP address, we can use [ngrok](https://ngrok.com/).
-
-1. Make sure `dependency services` and this sample `gRPC server` are up and running.
-
-2. Sign-in/sign-up to [ngrok](https://ngrok.com/) and get your auth token in `ngrok` dashboard.
-
-3. In `grpc-plugin-dependencies` repository, run the following command to expose `gRPC server` Envoy proxy port in local development environment to the internet. Take a note of the `ngrok` forwarding URL e.g. `tcp://0.tcp.ap.ngrok.io:xxxxx`.
-
-   ```
-   make ngrok NGROK_AUTHTOKEN=xxxxxxxxxxx
-   ```
-
-4. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with confidential client type with the following permissions. Keep the `Client ID` and `Client Secret` for running the [demo.sh](demo.sh) script after this.
-
-   - NAMESPACE:{namespace}:MATCHMAKING:RULES - CREATE, READ, UPDATE, DELETE
-   - NAMESPACE:{namespace}:MATCHMAKING:FUNCTIONS - CREATE, READ, UPDATE, DELETE
-   - NAMESPACE:{namespace}:MATCHMAKING:POOL - CREATE, READ, UPDATE, DELETE
-   - NAMESPACE:{namespace}:MATCHMAKING:TICKET - CREATE, READ, UPDATE, DELETE
-   - ADMIN:NAMESPACE:{namespace}:INFORMATION:USER:* - CREATE, READ, UPDATE, DELETE
-   - ADMIN:NAMESPACE:{namespace}:SESSION:CONFIGURATION:* - CREATE, READ, UDPATE, DELETE
-   
-5. Run the [demo.sh](demo.sh) script to simulate the matchmaking flow which calls this sample `gRPC server` using the `Client ID` and `Client Secret` created in the previous step. Pay attention to sample `gRPC server` log when matchmaking flow is running. `gRPC Server` methods should get called when creating match tickets and it should group players in twos.
-
-   ```
-   export AB_BASE_URL='https://demo.accelbyte.io'
-   export AB_CLIENT_ID='xxxxxxxxxx'
-   export AB_CLIENT_SECRET='xxxxxxxxxx'
-   export AB_NAMESPACE='accelbyte'
-   export NGROK_URL='tcp://0.tcp.ap.ngrok.io:xxxxx'
-   bash demo.sh
-   ```
- 
-> :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
 
 ## Advanced
 
