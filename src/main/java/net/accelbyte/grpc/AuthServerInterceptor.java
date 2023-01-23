@@ -6,7 +6,11 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import lombok.extern.slf4j.Slf4j;
-import net.accelbyte.util.ServerAuthProvider;
+import net.accelbyte.sdk.core.AccelByteSDK;
+import net.accelbyte.sdk.core.AccelByteConfig;
+import net.accelbyte.sdk.core.client.OkhttpClient;
+import net.accelbyte.sdk.core.repository.DefaultConfigRepository;
+import net.accelbyte.sdk.core.repository.DefaultTokenRepository;
 
 import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +24,21 @@ public class AuthServerInterceptor implements ServerInterceptor {
 
     @Value("${plugin.grpc.server.interceptor.auth.enabled:true}")
     private boolean enabled;
-
-    private ServerAuthProvider authProvider;
+    private AccelByteSDK sdk;
     private String namespace;
     private String resource;
 
     @Autowired
-    public AuthServerInterceptor(ServerAuthProvider authProvider, @Value("${plugin.grpc.config.resource_name}") String resource,
+    public AuthServerInterceptor(
+            @Value("${plugin.grpc.config.resource_name}") String resource,
             @Value("${plugin.grpc.config.namespace}") String namespace) {
-        this.authProvider = authProvider;
+
+        final AccelByteConfig config = new AccelByteConfig(
+                new OkhttpClient(),
+                new DefaultTokenRepository(),
+                new DefaultConfigRepository());
+        this.sdk = new AccelByteSDK(config);
+
         this.namespace = namespace;
         this.resource = resource;
 
@@ -42,6 +52,7 @@ public class AuthServerInterceptor implements ServerInterceptor {
             return next.startCall(call, headers);
         }
 
+        log.info("AuthServerInterceptor::interceptCall start");
         try {
             final String authHeader = headers.get(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER));
 
@@ -56,11 +67,15 @@ public class AuthServerInterceptor implements ServerInterceptor {
             }
 
             final String authToken = authTypeToken[1];
+            final String qPermission = String.format("NAMESPACE:%s:%s", this.namespace,  this.resource);
+            log.info("AUTH PERMISSION: {}",qPermission);
+            log.info("TOKEN: {}",authToken);
 
-            if (!authProvider.validate(authToken, "NAMESPACE:" + this.namespace + ":" + this.resource, 2)) {
+            if (!sdk.validateToken(authToken, qPermission, 2)) {    // Action 2 - read only
                 throw new Exception("Auth token validation failed");
             }
         } catch (Exception e) {
+            log.info("Authorization error: " + e.getMessage());
             log.error("Authorization error", e);
             unAuthorizedCall(call, headers);
         }
