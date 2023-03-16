@@ -106,23 +106,90 @@ docker-compose up --build
 
 ## Testing
 
-### Test Functionality in Local Development Environment
+### Functional Test in Local Development Environment
 
-The functionality of `gRPC server` methods can be tested in local development environment.
+The custom functions in this sample app can be tested locally using `postman`.
 
-1. Make sure `dependency services` are running. Please read `README.md` in the `grpc-plugin-dependencies` repository on how to run it.
+1. Start the `dependency services` by following the `README.md` in the [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) repository.
 
-2. Make sure this sample `gRPC server` is also up and running.
+   > :warning: **Make sure to start dependency services with mTLS disabled for now**: It is currently not supported by AccelByte Gaming Services but it will be enabled later on to improve security. If it is enabled, the gRPC client calls without mTLS will be rejected by Envoy proxy.
 
-3. Run the corresponding `gRPC client` as a stand in for the actual `gRPC client` in AccelByte Gaming Services, for example `lootbox-roll-function-grpc-plugin-client-java`.
+2. Start this `gRPC server` sample app.
 
-   a. Clone `lootbox-roll-function-grpc-plugin-client-java` repository. 
+3. Open `postman`, create a new `gRPC request`, and enter `localhost:10000` as server URL. 
 
-   b. Follow the `README.md` inside to setup, build, and run it.
+   > :exclamation: We are essentially accessing the `gRPC server` through an `Envoy` proxy which is a part of `dependency services`.
 
-   c. Try it out! See the instruction in `README.md`.
+4. Still in `postman`, continue by selecting `LootBox/RollLootBoxRewards` method and invoke it with the sample message below.
 
-> :exclamation: **Sample `gRPC server` and `gRPC client` does not have to be implemented in the same programming language**: As long as the gRPC proto is compatible, they should be able to communicate with each other.
+   ```json
+   {
+      "userId": "b52a2364226d436285c1b8786bc9cbd1",
+      "namespace": "accelbyte",
+      "quantity": 10,
+      "itemInfo": {
+         "itemId": "8a0b8bda28c845f6938cc57540af452e",
+         "itemSku": "SKU3170",
+         "rewardCount": 2,
+         "lootBoxRewards": [
+               {
+                  "name": "Foods",
+                  "type": "REWARD",
+                  "weight": 5,
+                  "odds": 0,
+                  "items": [
+                     {
+                           "itemId": "8b6016d243264c0f90031600313b8a37",
+                           "itemSku": "SKU4650",
+                           "count": 5
+                     }                 
+                  ]
+               },
+               {
+                  "name": "Beverages",
+                  "type": "REWARD",
+                  "weight": 4,
+                  "odds": 0,
+                  "items": [
+                     {
+                           "itemId": "dd81bbc3d9fd413daecfd0d0e53fc095",
+                           "itemSku": "SKU1939",
+                           "count": 13
+                     }            
+                  ]
+               },
+               {
+                  "name": "Specials",
+                  "type": "REWARD",
+                  "weight": 1,
+                  "odds": 0,
+                  "items": [
+                     {
+                           "itemId": "3318d5fe505a4891b6b5a70586b294ca",
+                           "itemSku": "SKU1739",
+                           "count": 21
+                     }
+                  ]
+               }
+         ]
+      }
+   }
+   ```
+
+5. If successful, you will see the rolled reward(s) in the response.
+
+   ```json
+   {
+      "rewards": [
+         {
+            "itemId": "8b6016d243264c0f90031600313b8a37",
+            "itemSku": "SKU4650",
+            "count": 5
+         },
+         ...      
+      ]
+   }
+   ```
 
 ### Test Functionality using CLI Demo App
 
