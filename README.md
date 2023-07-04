@@ -196,7 +196,20 @@ The custom functions in this sample app can be tested locally using `postman`.
 The functionality of `gRPC server` methods can be tested with AccelByte Gaming Service using CLI demo app [here](demo/cli/).
 Read its [readme](demo/cli/README.md) on how to use it.
 
-## Advanced
+### Deploy to AccelByte Gaming Services
+
+After passing functional test against locally running sample app you may want to deploy the sample app to AGS (AccelByte Gaming Services).
+
+1. Download and setup [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/)
+2. Create new Extend App on Admin Portal, please refer to docs [here](https://docs-preview.accelbyte.io/gaming-services/services/customization/getting-started-lootbox-roll-function/)
+3. Do docker login using `extend-helper-cli`, please refer to its documentation
+4. Build and push sample app docker image to AccelByte ECR using the following command inside sample app directory
+   ```
+   make imagex_push REPO_URL=xxxxxxxxxx.dkr.ecr.us-west-2.amazonaws.com/accelbyte/justice/development/extend/xxxxxxxxxx/xxxxxxxxxx IMAGE_TAG=v0.0.1
+   ```
+   > Note: the REPO_URL is obtained from step 2 in the app detail on the 'Repository Url' field
+
+Please refer to [getting started docs](https://docs-preview.accelbyte.io/gaming-services/services/customization/getting-started-lootbox-roll-function/) for more detailed steps on how to deploy sample app to AccelByte Gaming Service.
 
 ### Building Multi-Arch Docker Image
 
