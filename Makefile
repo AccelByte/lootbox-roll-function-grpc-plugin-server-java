@@ -36,11 +36,3 @@ imagex_push:
 	docker buildx inspect $(BUILDER) || docker buildx create --name $(BUILDER) --use
 	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
-
-build-clidemo:
-	docker build -t ${IMAGE_NAME}-clidemo -f Dockerfile.clidemo .
-
-run-clidemo:
-	docker run -t --rm -u $$(id -u):$$(id -g) \
-		--env-file .env.clidemo \
-		${IMAGE_NAME}-clidemo

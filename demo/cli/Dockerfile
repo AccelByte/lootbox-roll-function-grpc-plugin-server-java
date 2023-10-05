@@ -1,5 +1,5 @@
 FROM azul/zulu-openjdk:17.0.4-17.36.13 as builder
-ARG DEMO_PATH=./demo/cli
+ARG DEMO_PATH=.
 WORKDIR /build
 COPY $DEMO_PATH/gradle* ./
 COPY $DEMO_PATH/*.gradle ./
@@ -13,5 +13,4 @@ RUN sh gradlew installDist
 FROM azul/zulu-openjdk:17.0.4-17.36.13
 WORKDIR /app
 COPY --from=builder /build/app/target/install/app .
-RUN ls -lha ./
 ENTRYPOINT /app/bin/app
