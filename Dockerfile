@@ -10,7 +10,6 @@ RUN sh gradlew dependencies -i
 COPY . .
 RUN sh gradlew build -i
 
-
 FROM azul/zulu-openjdk:17.0.4-17.36.13
 WORKDIR /app
 COPY jars/aws-opentelemetry-agent.jar aws-opentelemetry-agent.jar

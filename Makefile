@@ -10,12 +10,16 @@ SHELL := /bin/bash
 .PHONY: clean build image imagex
 
 clean:
-	docker run -t --rm -u $$(id -u):$$(id -g) -v $$(pwd):/data/ -w /data/ -e GRADLE_USER_HOME=.gradle gradle:7.5.1-jdk17 \
-			gradle --console=plain -i --no-daemon clean
+	docker run -t --rm -u $$(id -u):$$(id -g) \
+		-v $$(pwd):/data/ -w /data/ \
+		-e GRADLE_USER_HOME=.gradle gradle:7.5.1-jdk17 \
+		gradle --console=plain -i --no-daemon clean
 
 build:
-	docker run -t --rm -u $$(id -u):$$(id -g) -v $$(pwd):/data/ -w /data/ -e GRADLE_USER_HOME=.gradle gradle:7.5.1-jdk17 \
-			gradle --console=plain -i --no-daemon build
+	docker run -t --rm -u $$(id -u):$$(id -g) \
+		-v $$(pwd):/data/ -w /data/ \
+		-e GRADLE_USER_HOME=.gradle gradle:7.5.1-jdk17 \
+		gradle --console=plain -i --no-daemon build
 
 image:
 	docker buildx build -t ${IMAGE_NAME} --load .
@@ -32,3 +36,11 @@ imagex_push:
 	docker buildx inspect $(BUILDER) || docker buildx create --name $(BUILDER) --use
 	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
+
+build-clidemo:
+	docker build -t ${IMAGE_NAME}-clidemo -f Dockerfile.clidemo .
+
+run-clidemo:
+	docker run -t --rm -u $$(id -u):$$(id -g) \
+		--env-file .env.clidemo \
+		${IMAGE_NAME}-clidemo

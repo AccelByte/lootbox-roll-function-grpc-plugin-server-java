@@ -17,8 +17,8 @@ import net.accelbyte.sdk.api.platform.operations.item.CreateItem;
 import net.accelbyte.sdk.api.platform.operations.section.CreateSection;
 import net.accelbyte.sdk.api.platform.operations.section.PublicListActiveSections;
 import net.accelbyte.sdk.api.platform.operations.section.UpdateSection;
-import net.accelbyte.sdk.api.platform.operations.service_plugin_config.DeleteServicePluginConfig;
-import net.accelbyte.sdk.api.platform.operations.service_plugin_config.UpdateServicePluginConfig;
+import net.accelbyte.sdk.api.platform.operations.service_plugin_config.DeleteLootBoxPluginConfig;
+import net.accelbyte.sdk.api.platform.operations.service_plugin_config.UpdateLootBoxPluginConfig;
 import net.accelbyte.sdk.api.platform.operations.store.CreateStore;
 import net.accelbyte.sdk.api.platform.operations.store.DeleteStore;
 import net.accelbyte.sdk.api.platform.operations.store.ListStores;
@@ -194,12 +194,12 @@ public class PlatformDataUnit {
                     .title(nItemInfo.getTitle())
                     .build());
 
-            final Map<String,List<RegionDataItem>> iRegionData = new HashMap<>();
-            final List<RegionDataItem> regionItem = new ArrayList<>();
-            regionItem.add(RegionDataItem.builder()
+            final Map<String,List<RegionDataItemDTO>> iRegionData = new HashMap<>();
+            final List<RegionDataItemDTO> regionItem = new ArrayList<>();
+            regionItem.add(RegionDataItemDTO.builder()
                     .currencyCode("USD")
                     .currencyNamespace("accelbyte")
-                    .currencyTypeFromEnum(RegionDataItem.CurrencyType.REAL)
+                    .currencyTypeFromEnum(RegionDataItemDTO.CurrencyType.REAL)
                     .price((i + 1) * 2)
                     .build());
             iRegionData.put("US",regionItem);
@@ -280,12 +280,12 @@ public class PlatformDataUnit {
                     .title(nItemInfo.getTitle())
                     .build());
 
-            final Map<String,List<RegionDataItem>> iRegionData = new HashMap<>();
-            final List<RegionDataItem> regionItem = new ArrayList<>();
-            regionItem.add(RegionDataItem.builder()
+            final Map<String,List<RegionDataItemDTO>> iRegionData = new HashMap<>();
+            final List<RegionDataItemDTO> regionItem = new ArrayList<>();
+            regionItem.add(RegionDataItemDTO.builder()
                     .currencyCode("USD")
                     .currencyNamespace("accelbyte")
-                    .currencyTypeFromEnum(RegionDataItem.CurrencyType.REAL)
+                    .currencyTypeFromEnum(RegionDataItemDTO.CurrencyType.REAL)
                     .price((i + 1) * 2)
                     .build());
             iRegionData.put("US",regionItem);
@@ -445,22 +445,41 @@ public class PlatformDataUnit {
     }
 
     public void setPlatformServiceGrpcTarget() throws Exception {
+        ServicePluginConfig wrapper = new ServicePluginConfig(abSdk);
+
         final String abGrpcServerUrl = config.getGrpcServerUrl();
         if (abGrpcServerUrl.equals(""))
-            throw new Exception("Grpc Server Url is empty!");
+        {
+            final String abExtendAppName = config.getExtendAppName();
+            if (abExtendAppName.equals(""))
+                throw new Exception("Grpc Server Url or extend app name is not specified!");
 
-        ServicePluginConfig wrapper = new ServicePluginConfig(abSdk);
-        wrapper.updateServicePluginConfig(UpdateServicePluginConfig.builder()
-                .namespace(abNamespace)
-                .body(ServicePluginConfigUpdate.builder()
-                        .grpcServerAddress(abGrpcServerUrl)
-                        .build())
-                .build());
+            wrapper.updateLootBoxPluginConfig(UpdateLootBoxPluginConfig.builder()
+                    .namespace(abNamespace)
+                    .body(LootBoxPluginConfigUpdate.builder()
+                            .extendTypeFromEnum(LootBoxPluginConfigUpdate.ExtendType.APP)
+                            .appConfig(AppConfig.builder()
+                                    .appName(abExtendAppName)
+                                    .build())
+                            .build())
+                    .build());
+        } else {
+            wrapper.updateLootBoxPluginConfig(UpdateLootBoxPluginConfig.builder()
+                    .namespace(abNamespace)
+                    .body(LootBoxPluginConfigUpdate.builder()
+                            .extendTypeFromEnum(LootBoxPluginConfigUpdate.ExtendType.CUSTOM)
+                            .customConfig(BaseCustomConfig.builder()
+                                    .connectionTypeFromEnum(BaseCustomConfig.ConnectionType.INSECURE)
+                                    .grpcServerAddress(abGrpcServerUrl)
+                                    .build())
+                            .build())
+                    .build());
+        }
     }
 
     public void unsetPlatformServiceGrpcTarget() throws Exception {
         ServicePluginConfig wrapper = new ServicePluginConfig(abSdk);
-        wrapper.deleteServicePluginConfig(DeleteServicePluginConfig.builder()
+        wrapper.deleteLootBoxPluginConfig(DeleteLootBoxPluginConfig.builder()
                 .namespace(abNamespace)
                 .build());
     }

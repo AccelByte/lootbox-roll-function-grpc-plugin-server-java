@@ -193,15 +193,42 @@ The custom functions in this sample app can be tested locally using `postman`.
 
 ### Test Functionality using CLI Demo App
 
-The functionality of `gRPC server` methods can be tested with AccelByte Gaming Service using CLI demo app [here](demo/cli/).
-Read its [readme](demo/cli/README.md) on how to use it.
+The functionality of `gRPC server` methods can be tested with AccelByte Gaming Service using CLI demo app.
+
+To be able to run this CLI demo app, you will need to follow these steps.
+
+1. Create a docker compose `.env.clidemo` file by copying the content of [.env.template.clidemo](.env.template.clidemo) file. 
+2. Fill in the required environment variables in `.env` file as shown below.
+
+   ```
+   AB_BASE_URL=https://demo.accelbyte.io      # Base URL of AccelByte Gaming Services demo environment
+   AB_CLIENT_ID='xxxxxxxxxx'                  # Use Client ID from the Setup section
+   AB_CLIENT_SECRET='xxxxxxxxxx'              # Use Client Secret from the Setup section
+   AB_NAMESPACE='xxxxxxxxxx'                  # Use Namespace ID from the Setup section
+   AB_USERNAME='xxxxxxxxxx'                   # AccelByte username
+   AB_PASSWORD='xxxxxxxxxx'                   # and its password
+   AB_GRPC_SERVER_URL='xxxxxxxxxx'            # Set this value with locally hosted grpc server.
+   AB_EXTEND_APP_NAME='xxxxxxxxxx'            # Or, set this value with extend app you have created.
+   ```
+
+   > :warning: use either *AB_GRPC_SERVER_URL* or *AB_EXTEND_APP_NAME*: Set empty to the one that unused.
+3. Build the cli demo app using makefile
+   ```bash
+   $ make build-clidemo
+   ```
+4. Run the cli demo app using makefile
+   ```bash
+   $ make run-clidemo
+   ```
+
+For more information and advanced usage, read its [readme](demo/cli/README.md).
 
 ### Deploy to AccelByte Gaming Services
 
 After passing functional test against locally running sample app you may want to deploy the sample app to AGS (AccelByte Gaming Services).
 
 1. Download and setup [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/)
-2. Create new Extend App on Admin Portal, please refer to docs [here](https://docs-preview.accelbyte.io/gaming-services/services/customization/getting-started-lootbox-roll-function/)
+2. Create new Extend App on Admin Portal, please refer to docs [here](https://docs.accelbyte.io/gaming-services/services/extend/override-ags-feature/getting-started-with-lootbox-roll-customization/)
 3. Do docker login using `extend-helper-cli`, please refer to its documentation
 4. Build and push sample app docker image to AccelByte ECR using the following command inside sample app directory
    ```
@@ -209,7 +236,7 @@ After passing functional test against locally running sample app you may want to
    ```
    > Note: the REPO_URL is obtained from step 2 in the app detail on the 'Repository Url' field
 
-Please refer to [getting started docs](https://docs-preview.accelbyte.io/gaming-services/services/customization/getting-started-lootbox-roll-function/) for more detailed steps on how to deploy sample app to AccelByte Gaming Service.
+Please refer to [getting started docs](https://docs.accelbyte.io/gaming-services/services/extend/override-ags-feature/getting-started-with-lootbox-roll-customization/) for more detailed steps on how to deploy sample app to AccelByte Gaming Service.
 
 ### Building Multi-Arch Docker Image
 
