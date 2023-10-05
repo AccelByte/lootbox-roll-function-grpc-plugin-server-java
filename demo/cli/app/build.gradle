@@ -31,12 +31,16 @@ dependencies {
 
     annotationProcessor 'org.projectlombok:lombok:1.18.24'
 
-    // This dependency is used by the application.
+    // These dependencies are used by the application.
     implementation 'info.picocli:picocli:4.7.1'
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.projectlombok:lombok:1.18.24'
-    implementation 'net.accelbyte.sdk:sdk:0.31.0'
+    implementation 'net.accelbyte.sdk:sdk:0.47.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+
+    // this dependency is used to remove annoying "warning: unknown enum constant Include.NON_NULL reason: class file for com.fasterxml.jackson.annotation.JsonInclude$Include not found"
+    // but this can safely removed since the app itself didn't used it.
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.0'
 }
 
 application {

@@ -39,5 +39,6 @@ out/
 ### VS Code ###
 .vscode/
 .env
+.env.clidemo
 .DS_Store
 

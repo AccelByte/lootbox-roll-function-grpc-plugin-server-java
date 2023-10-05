@@ -76,16 +76,21 @@ CLI demo app requires only the grpc server url as a parameter.
 
 - Without any environment variables
 ```bash
-$ ./app/target/install/app/bin/app -b='https://demo.accelbyte.io' -c='CLIENT-ID-VALUE' -s='CLIENT-SECRET-VALUE' -n='NAMESPACE-VALUE' -u='<USERNAME>' -p='<PASSWORD>' <GRPC_PLUGIN_SERVER_URL> <RUN_MODE>
+$ ./app/target/install/app/bin/app -b='https://demo.accelbyte.io' -c='CLIENT-ID-VALUE' -s='CLIENT-SECRET-VALUE' -n='NAMESPACE-VALUE' -u='<USERNAME>' -p='<PASSWORD>' -g='<GRPC_PLUGIN_SERVER_URL>'
 ```
 - With basic environment variables setup
 ```bash
-$ ./app/target/install/app/bin/app -u='<USERNAME>' -p='<PASSWORD>' -n='<NAMESPACE-VALUE>' <GRPC_PLUGIN_SERVER_URL>
+$ ./app/target/install/app/bin/app -u='<USERNAME>' -p='<PASSWORD>' -n='<NAMESPACE-VALUE>' -g='<GRPC_PLUGIN_SERVER_URL>'
 ```
 - With all environment variables setup
 ```bash
-$ ./app/target/install/app/bin/app <GRPC_PLUGIN_SERVER_URL>
+$ ./app/target/install/app/bin/app -g='<GRPC_PLUGIN_SERVER_URL>'
 ```
+- Use Extend App instead of grpc server url
+```bash
+$ ./app/target/install/app/bin/app -a='<EXTEND_APP_NAME>'
+```
+
 - Show usage help
 ```bash
  $ ./app/target/install/app/bin/app -h
