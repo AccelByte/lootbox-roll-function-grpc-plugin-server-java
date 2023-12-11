@@ -40,5 +40,9 @@ out/
 .vscode/
 .env
 .env.clidemo
+.env.*
+!.env.template
 .DS_Store
 
+### Other ###
+.run/

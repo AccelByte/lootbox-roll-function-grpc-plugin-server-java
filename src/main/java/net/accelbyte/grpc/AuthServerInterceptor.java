@@ -5,17 +5,22 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.health.v1.HealthGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.accelbyte.sdk.core.AccelByteSDK;
 import net.accelbyte.sdk.core.AccelByteConfig;
+import net.accelbyte.sdk.core.AccessTokenPayload;
 import net.accelbyte.sdk.core.client.OkhttpClient;
 import net.accelbyte.sdk.core.repository.DefaultConfigRepository;
 import net.accelbyte.sdk.core.repository.DefaultTokenRepository;
 
+import org.apache.logging.log4j.util.Strings;
 import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
+
+import java.util.Objects;
 
 @Slf4j
 @GRpcGlobalInterceptor
@@ -26,21 +31,15 @@ public class AuthServerInterceptor implements ServerInterceptor {
     private boolean enabled;
     private AccelByteSDK sdk;
     private String namespace;
-    private String resource;
 
     @Autowired
     public AuthServerInterceptor(
-            @Value("${plugin.grpc.config.resource_name}") String resource,
-            @Value("${plugin.grpc.config.namespace}") String namespace) {
+            AccelByteSDK sdk,
+            @Value("app.namespace") String namespace) {
 
-        final AccelByteConfig config = new AccelByteConfig(
-                new OkhttpClient(),
-                new DefaultTokenRepository(),
-                new DefaultConfigRepository());
-        this.sdk = new AccelByteSDK(config);
+        this.sdk = sdk;
 
         this.namespace = namespace;
-        this.resource = resource;
 
         log.info("AuthServerInterceptor initialized");
     }
@@ -54,25 +53,29 @@ public class AuthServerInterceptor implements ServerInterceptor {
 
         log.info("AuthServerInterceptor::interceptCall start");
         try {
+            if (Objects.equals(call.getMethodDescriptor().getServiceName(), HealthGrpc.SERVICE_NAME)) {
+                return next.startCall(call, headers); // skip validation if health check
+            }
             final String authHeader = headers.get(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER));
-
             if (authHeader == null) {
-                throw new Exception("Auth header is null");
+                log.error("Auth header is null");
+                unAuthorizedCall(call, headers);
             }
-
             final String[] authTypeToken = authHeader.split(" ");
-
             if (authTypeToken.length != 2) {
-                throw new Exception("Invalid auth header format");
+                log.error("Auth header format is invalid");
+                unAuthorizedCall(call, headers);
             }
-
             final String authToken = authTypeToken[1];
-            final String qPermission = String.format("NAMESPACE:%s:%s", this.namespace,  this.resource);
-            log.info("AUTH PERMISSION: {}",qPermission);
-            log.info("TOKEN: {}",authToken);
-
-            if (!sdk.validateToken(authToken, qPermission, 2)) {    // Action 2 - read only
-                throw new Exception("Auth token validation failed");
+            final AccessTokenPayload tokenPayload = sdk.parseAccessToken(authToken, true);
+            if (tokenPayload == null) {
+                log.error("Auth token validation failed");
+                unAuthorizedCall(call, headers);
+            }
+            if (Strings.isBlank(tokenPayload.getExtendNamespace())
+                    || !Objects.equals(tokenPayload.getExtendNamespace(), namespace)) {
+                log.error("Invalid extend namespace");
+                unAuthorizedCall(call, headers);
             }
         } catch (Exception e) {
             log.info("Authorization error: " + e.getMessage());

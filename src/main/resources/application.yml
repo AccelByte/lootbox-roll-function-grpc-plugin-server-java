@@ -1,8 +1,8 @@
+app:
+  namespace: ${AB_NAMESPACE}
+
 plugin:
   grpc:
-    config:
-      namespace: ${AB_NAMESPACE:accelbyte}
-      resource_name: 'PLRGRPCSERVICE'
     server:
       interceptor:
         debug-logger:
