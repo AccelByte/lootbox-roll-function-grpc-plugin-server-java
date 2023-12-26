@@ -8,11 +8,7 @@ import io.grpc.Status;
 import io.grpc.health.v1.HealthGrpc;
 import lombok.extern.slf4j.Slf4j;
 import net.accelbyte.sdk.core.AccelByteSDK;
-import net.accelbyte.sdk.core.AccelByteConfig;
 import net.accelbyte.sdk.core.AccessTokenPayload;
-import net.accelbyte.sdk.core.client.OkhttpClient;
-import net.accelbyte.sdk.core.repository.DefaultConfigRepository;
-import net.accelbyte.sdk.core.repository.DefaultTokenRepository;
 
 import org.apache.logging.log4j.util.Strings;
 import org.lognet.springboot.grpc.GRpcGlobalInterceptor;
@@ -27,7 +23,7 @@ import java.util.Objects;
 @Order(20)
 public class AuthServerInterceptor implements ServerInterceptor {
 
-    @Value("${plugin.grpc.server.interceptor.auth.enabled:true}")
+    @Value("${plugin.grpc.server.interceptor.auth.enabled:false}")
     private boolean enabled;
     private AccelByteSDK sdk;
     private String namespace;

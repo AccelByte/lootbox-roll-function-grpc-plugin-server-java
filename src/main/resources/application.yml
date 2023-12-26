@@ -8,7 +8,7 @@ plugin:
         debug-logger:
           enabled: false
         auth:
-          enabled: ${PLUGIN_GRPC_SERVER_AUTH_ENABLED:true}
+          enabled: ${PLUGIN_GRPC_SERVER_AUTH_ENABLED:false}
 
 grpc:
   enable-reflection: true
