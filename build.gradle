@@ -2,6 +2,7 @@ plugins {
 	id "io.github.lognet.grpc-spring-boot" version '4.8.1'
 	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
 	id 'java'
+	id 'application'
 	id 'org.springframework.boot' version '2.7.4'
 }
 
@@ -9,6 +10,8 @@ group = 'net.accelbyte'
 version = '0.0.1'
 sourceCompatibility = '11'
 project.buildDir = 'target'
+
+mainClassName = 'net.accelbyte.Application'
 
 repositories {
 	mavenCentral()

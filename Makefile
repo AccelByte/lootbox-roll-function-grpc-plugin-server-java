@@ -37,6 +37,29 @@ imagex_push:
 	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
 
+test_functional_local_hosted:
+	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
+	docker build --tag lootbox-roll-function-test-functional-java -f test/functional/Dockerfile test/functional && \
+	docker run --rm -t \
+		--env-file $(ENV_PATH) \
+		-e GRADLE_USER_HOME=.gradle \
+		-u $$(id -u):$$(id -g) \
+		-v $$(pwd):/data \
+		-w /data lootbox-roll-function-test-functional-java bash ./test/functional/test-local-hosted.sh
+
+test_functional_accelbyte_hosted:
+	@test -n "$(ENV_PATH)" || (echo "ENV_PATH is not set"; exit 1)
+	docker build --tag lootbox-roll-function-test-functional-java -f test/functional/Dockerfile test/functional && \
+	docker run --rm -t \
+		--env-file $(ENV_PATH) \
+		-e GRADLE_USER_HOME=.gradle \
+		-e DOCKER_CONFIG=/tmp/.docker \
+		-u $$(id -u):$$(id -g) \
+		--group-add $$(getent group docker | cut -d ':' -f 3) \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v $$(pwd):/data \
+		-w /data lootbox-roll-function-test-functional-java bash ./test/functional/test-accelbyte-hosted.sh
+
 ngrok:
 	@test -n "$(NGROK_AUTHTOKEN)" || (echo "NGROK_AUTHTOKEN is not set" ; exit 1)
 	docker run --rm -it --net=host -e NGROK_AUTHTOKEN=$(NGROK_AUTHTOKEN) ngrok/ngrok:3-alpine \
