@@ -64,17 +64,16 @@ app is deployed.
 2. Fill in the required environment variables in `.env` file as shown below.
 
    ```
-   AB_BASE_URL=https://demo.accelbyte.io     # Base URL of AccelByte Gaming Services environment
+   AB_BASE_URL=https://test.accelbyte.io     # Base URL of AccelByte Gaming Services environment
    AB_CLIENT_ID='xxxxxxxxxx'                 # Client ID from the Prerequisites section
    AB_CLIENT_SECRET='xxxxxxxxxx'             # Client Secret from the Prerequisites section
    AB_NAMESPACE='xxxxxxxxxx'                 # Namespace ID from the Prerequisites section
-   PLUGIN_GRPC_SERVER_AUTH_ENABLED=false     # Enable or disable access token and permission verification
+   PLUGIN_GRPC_SERVER_AUTH_ENABLED=true      # Enable or disable access token validation
    ```
 
-   > :warning: **Keep PLUGIN_GRPC_SERVER_AUTH_ENABLED=false for now**: It is currently not
-   supported by `AccelByte Gaming Services`, but it will be enabled later on to improve security. If it is
-   enabled, the gRPC server will reject any calls from gRPC clients without proper authorization
-   metadata.
+   > :info: **In this sample app, PLUGIN_GRPC_SERVER_AUTH_ENABLED is `true` by default**: If it is set to `false`, the 
+   `gRPC server` can be invoked without `AccelByte Gaming Services` access token. This option is provided for development 
+   purpose only. It is recommended to enable `gRPC server` access token validation in production environment.
 
 ## Building
 
@@ -95,6 +94,9 @@ docker compose up --build
 ## Testing
 
 ### Test in Local Development Environment
+
+> :warning: **To perform the following, make sure PLUGIN_GRPC_SERVER_AUTH_ENABLED is set to `false`**: Otherwise,
+the gRPC request will be rejected by the `gRPC server`.
 
 The custom functions in this sample app can be tested locally using [postman](https://www.postman.com/).
 
@@ -221,7 +223,7 @@ the `gRPC server` needs to be exposed to the internet. To do this without requir
 set the required environment variables as shown below. 
 
    ```
-   AB_BASE_URL='https://demo.accelbyte.io'
+   AB_BASE_URL='https://test.accelbyte.io'
    AB_CLIENT_ID='xxxxxxxxxx'       # Use Client ID from the previous step
    AB_CLIENT_SECRET='xxxxxxxxxx'   # Use Client secret from the previous step
    AB_NAMESPACE='xxxxxxxxxx'       # Use your Namespace ID

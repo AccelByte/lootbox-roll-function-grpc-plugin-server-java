@@ -48,7 +48,7 @@ to utilize GraalVm.
 
 The following environment variables are used by this CLI demo app.
 ```
-export AB_BASE_URL='https://demo.accelbyte.io'
+export AB_BASE_URL='https://test.accelbyte.io'
 export AB_CLIENT_ID='xxxxxxxxxx'
 export AB_CLIENT_SECRET='xxxxxxxxxx'
 
@@ -76,7 +76,7 @@ CLI demo app requires only the grpc server url as a parameter.
 
 - Without any environment variables
 ```bash
-$ ./app/target/install/app/bin/app -b='https://demo.accelbyte.io' -c='CLIENT-ID-VALUE' -s='CLIENT-SECRET-VALUE' -n='NAMESPACE-VALUE' -u='<USERNAME>' -p='<PASSWORD>' -g='<GRPC_PLUGIN_SERVER_URL>'
+$ ./app/target/install/app/bin/app -b='https://test.accelbyte.io' -c='CLIENT-ID-VALUE' -s='CLIENT-SECRET-VALUE' -n='NAMESPACE-VALUE' -u='<USERNAME>' -p='<PASSWORD>' -g='<GRPC_PLUGIN_SERVER_URL>'
 ```
 - With basic environment variables setup
 ```bash
