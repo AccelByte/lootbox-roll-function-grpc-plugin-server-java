@@ -47,7 +47,7 @@ app is deployed.
 
    a. Base URL
    
-      - For `Starter` tier e.g.  https://spaceshooter.dev.gamingservices.accelbyte.io
+      - For `Starter` tier e.g.  https://spaceshooter.gamingservices.accelbyte.io
       - For `Premium` tier e.g.  https://dev.accelbyte.io
       
    b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
@@ -206,7 +206,6 @@ the `gRPC server` needs to be exposed to the internet. To do this without requir
    This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
 5. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`. This is different from the Oauth Client from the Prerequisites section and it is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
-   > :exclamation: For AGS Starter customers, you don't need to add the permissions. All confidential IAM clients already contain the necessary permissions.
    
    - ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [READ, UPDATE, DELETE]
    - ADMIN:NAMESPACE:{namespace}:STORE [CREATE, READ, UPDATE, DELETE]
