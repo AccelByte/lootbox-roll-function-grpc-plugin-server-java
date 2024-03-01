@@ -35,7 +35,7 @@ dependencies {
     implementation 'info.picocli:picocli:4.7.1'
     implementation 'com.google.guava:guava:31.0.1-jre'
     implementation 'org.projectlombok:lombok:1.18.24'
-    implementation 'net.accelbyte.sdk:sdk:0.47.0'
+    implementation 'net.accelbyte.sdk:sdk:0.57.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
     // this dependency is used to remove annoying "warning: unknown enum constant Include.NON_NULL reason: class file for com.fasterxml.jackson.annotation.JsonInclude$Include not found"
