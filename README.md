@@ -47,7 +47,7 @@ app is deployed.
 
    a. Base URL
    
-      - For `Starter` tier e.g.  https://spaceshooter.gamingservices.accelbyte.io
+      - For `Starter` tier e.g.  https://spaceshooter.prod.gamingservices.accelbyte.io
       - For `Premium` tier e.g.  https://dev.accelbyte.io
       
    b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
@@ -207,12 +207,20 @@ the `gRPC server` needs to be exposed to the internet. To do this without requir
 
 5. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`. This is different from the Oauth Client from the Prerequisites section and it is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
    
-   - ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [READ, UPDATE, DELETE]
-   - ADMIN:NAMESPACE:{namespace}:STORE [CREATE, READ, UPDATE, DELETE]
-   - ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]
-   - ADMIN:NAMESPACE:{namespace}:CURRENCY [CREATE, DELETE]
-   - ADMIN:NAMESPACE:{namespace}:ITEM [CREATE, DELETE]
-   - ADMIN:NAMESPACE:{namespace}:USER:*:ENTITLEMENT [CREATE, UPDATE, DELETE]
+   - For AGS Premium customers:
+      - ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [READ, UPDATE, DELETE]
+      - ADMIN:NAMESPACE:{namespace}:STORE [CREATE, READ, UPDATE, DELETE]
+      - ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]
+      - ADMIN:NAMESPACE:{namespace}:CURRENCY [READ, CREATE, DELETE]
+      - ADMIN:NAMESPACE:{namespace}:ITEM [READ, CREATE, DELETE]
+      - ADMIN:NAMESPACE:{namespace}:USER:*:ENTITLEMENT [READ, CREATE, UPDATE, DELETE]
+   - For AGS Starter customers:
+      - Platform Store -> Service Plugin Config (Read, Update, Delete)
+      - Platform Store -> Store (Read, Create, Update, Delete)
+      - Platform Store -> Category (Create)
+      - Platform Store -> Currency (Read, Create, Delete)
+      - Platform Store -> Item (Read, Create, Delete)
+      - Platform Store -> Entitlement (Read, Create, Update, Delete)
 
    > :warning: **Oauth Client created in this step is different from the one from Prerequisites section:** It is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
 
