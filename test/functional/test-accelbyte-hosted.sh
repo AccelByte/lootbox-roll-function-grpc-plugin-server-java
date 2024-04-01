@@ -119,7 +119,6 @@ APP_REPO_HOST=$(echo "$APP_REPO_URL" | cut -d/ -f1)
 
 ./extend-helper-cli dockerlogin --namespace $AB_NAMESPACE --app $APP_NAME -p | docker login -u AWS --password-stdin $APP_REPO_HOST
 
-#make build
 make imagex_push REPO_URL=$APP_REPO_URL IMAGE_TAG=v0.0.1
 
 api_curl "${AB_BASE_URL}/csm/v1/admin/namespaces/${AB_NAMESPACE}/apps/$APP_NAME/deployments" \
@@ -144,6 +143,8 @@ if ! [ "$STATUS" = "R" ]; then
     echo "Failed to deploy Extend app (status: $STATUS)"
     exit 1
 fi
+
+sleep 60    # Wait until Extend app is running
 
 echo '# Testing Extend app using demo CLI'
 
