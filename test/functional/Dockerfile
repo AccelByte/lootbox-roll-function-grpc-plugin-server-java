@@ -1,7 +1,13 @@
-FROM ngrok/ngrok as ngrok_image
-
-FROM alpine:3.19.1
+FROM alpine:3.19
 WORKDIR /workspace
-RUN apk --no-cache add bash curl docker-cli-buildx git jq make gradle gcompat \
-        && apk add --update-cache --upgrade curl
-COPY --from=ngrok_image /bin/ngrok /bin/ngrok
+RUN apk add --no-cache \
+        bash \
+        curl \
+        docker-cli-buildx \
+        gcompat \
+        git \
+        jq \
+        libstdc++ \
+        make \
+        openjdk17-jdk
+COPY --from=ngrok/ngrok:latest /bin/ngrok /bin/ngrok
