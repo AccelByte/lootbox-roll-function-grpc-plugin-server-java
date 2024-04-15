@@ -26,7 +26,7 @@ image:
 
 imagex:
 	docker buildx inspect $(BUILDER) || docker buildx create --name $(BUILDER) --use
-	docker buildx build -t ${IMAGE_NAME} --platform linux/arm64/v8,linux/amd64 .
+	docker buildx build -t ${IMAGE_NAME} --platform linux/amd64 .
 	docker buildx build -t ${IMAGE_NAME} --load .
 	docker buildx rm --keep-state $(BUILDER)
 
@@ -34,7 +34,7 @@ imagex_push:
 	@test -n "$(IMAGE_TAG)" || (echo "IMAGE_TAG is not set (e.g. 'v0.1.0', 'latest')"; exit 1)
 	@test -n "$(REPO_URL)" || (echo "REPO_URL is not set"; exit 1)
 	docker buildx inspect $(BUILDER) || docker buildx create --name $(BUILDER) --use
-	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/arm64/v8,linux/amd64 --push .
+	docker buildx build -t ${REPO_URL}:${IMAGE_TAG} --platform linux/amd64 --push .
 	docker buildx rm --keep-state $(BUILDER)
 
 test_functional_local_hosted:
