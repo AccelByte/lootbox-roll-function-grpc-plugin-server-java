@@ -12,16 +12,30 @@ TEST_SAMPLE_CONTAINER_NAME := sample-override-test
 .PHONY: clean build
 
 clean:
-	docker run -t --rm -u $$(id -u):$$(id -g) \
-		-v $$(pwd):/data/ -w /data/ \
-		-e GRADLE_USER_HOME=.gradle gradle:7.6.4-jdk17 \
-		gradle --console=plain -i --no-daemon clean
+	docker run -t --rm \
+			-u $$(id -u):$$(id -g) \
+			-v $$(pwd):/data \
+			-w /data \
+			-e GRADLE_USER_HOME=.gradle \
+			gradle:7.6.4-jdk17 \
+			gradle -i --no-daemon clean
 
 build:
-	docker run -t --rm -u $$(id -u):$$(id -g) \
-		-v $$(pwd):/data/ -w /data/ \
-		-e GRADLE_USER_HOME=.gradle gradle:7.6.4-jdk17 \
-		gradle --console=plain -i --no-daemon build
+	docker run -t --rm \
+			-u $$(id -u):$$(id -g) \
+			-v $$(pwd):/data \
+			-w /data \
+			-e GRADLE_USER_HOME=.gradle \
+			gradle:7.6.4-jdk17 \
+			gradle -i --no-daemon generateProto \
+					|| find .gradle -type f -iname 'protoc-*.exe' -exec chmod +x {} \;		# For MacOS docker host: Workaround to make protoc-*.exe executable
+	docker run -t --rm \
+			-u $$(id -u):$$(id -g) \
+			-v $$(pwd):/data \
+			-w /data \
+			-e GRADLE_USER_HOME=.gradle \
+			gradle:7.6.4-jdk17 \
+			gradle -i --no-daemon build
 
 image:
 	docker buildx build -t ${IMAGE_NAME} --load .
