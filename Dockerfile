@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM gradle:7.6.4-jdk17 as builder
+FROM --platform=$BUILDPLATFORM gradle:7.6.4-jdk17 AS builder
 ARG GRADLE_USER_HOME=.gradle
 WORKDIR /build
 COPY gradle gradle
