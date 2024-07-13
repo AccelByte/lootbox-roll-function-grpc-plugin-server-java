@@ -354,10 +354,10 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
 4. Build and push sample app docker image to AccelByte ECR using the following command.
    
    ```
-   make imagex_push IMAGE_TAG=v0.0.1 REPO_URL=xxxxxxxxxx.dkr.ecr.us-west-2.amazonaws.com/accelbyte/justice/development/extend/xxxxxxxxxx/xxxxxxxxxx
+   extend-helper-cli image-upload --work-dir <my-project-dir> --namespace <my-game> --app <my-app> --image-tag v0.0.1
    ```
 
-   > :exclamation: **The REPO_URL is obtained from step 1**: It can be found under 'Repository URI' in the app detail.
+   > :warning: Make sure to perform docker login (step 3) before executing the above command.
 
 5. Open Admin Portal, go to **Extend** -> **Overridable Features**. And then select the extend app.
 
