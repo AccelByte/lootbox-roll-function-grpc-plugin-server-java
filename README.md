@@ -11,83 +11,120 @@ flowchart LR
    CL --- SV
 ```
 
-`AccelByte Gaming Services` (AGS) features can be customized with 
-`Extend Override` apps. An `Extend Override` app is a `gRPC server` which 
+`AccelByte Gaming Services` (AGS) features can be customized using 
+`Extend Override` apps. An `Extend Override` app is a gRPC server which 
 contains one or more custom functions which can be called by AGS 
-instead of the default functions.
+instead of its default functions.
 
 ## Overview
 
-This repository serves as a template project for an `Extend Override` 
-app for `lootbox roll function` written in `Java`. You can clone this repository
-and start implementing custom functions which can then be called by AGS.
+This repository provides a project template to create an `Extend Override` 
+app for `lootbox roll function` written in `Java`. It includes an example of how the
+custom functions can be implemented. It also includes the essential 
+gRPC server authentication and authorization to ensure security. Additionally, 
+it comes with built-in instrumentation for observability, ensuring that metrics, 
+traces, and logs are available upon deployment.
 
-By using this repository as a template project, you will get the recommended 
-authentication and authorization implemented out-of-the-box. You will also get 
-some instrumentation for observability so that metrics, traces, and 
-logs will be available when the app is deployed.
-
-As an example to get you started, this template project contains sample 
-custom roll function for platform service in `AccelByte Gaming Services`.
+You can clone this repository to begin developing your own `Extend Override` 
+app for `lootbox roll function`. Simply modify this project by implementing
+your own logic for the custom functions.
 
 ## Prerequisites
 
-1. Windows 11 WSL2 or Linux Ubuntu 22.04 or macOS 14+ with the following tools installed.
+1. Windows 11 WSL2 or Linux Ubuntu 22.04 or macOS 14+ with the following tools installed:
 
    a. Bash
 
-      ```
-      bash --version
+      - On Windows WSL2 or Linux Ubuntu:
 
-      GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
-      ...
-      ```
+         ```
+         bash --version
+
+         GNU bash, version 5.1.16(1)-release (x86_64-pc-linux-gnu)
+         ...
+         ```
+
+      - On macOS:
+
+         ```
+         bash --version
+
+         GNU bash, version 3.2.57(1)-release (arm64-apple-darwin23)
+         ...
+         ```
 
    b. Make
 
-      - To install from Ubuntu repository, run: `sudo apt update && sudo apt install make` 
+      - On Windows WSL2 or Linux Ubuntu:
 
-      ```
-      make --version
+         To install from the Ubuntu repository, run `sudo apt update && sudo apt install make`.
 
-      GNU Make 4.3
-      ...
-      ```
+         ```
+         make --version
 
-   c. Docker (Docker Engine v23.0+)
+         GNU Make 4.3
+         ...
+         ```
 
-      - To install from Ubuntu repository, run: `sudo apt update && sudo apt install docker.io docker-buildx docker-compose-v2`
-      - Add your user to `docker` group: `sudo usermod -aG docker $USER`
-      - Log out and log back in so that the changes take effect
+      - On macOS:
 
-      ```
-      docker version
+         ```
+         make --version
 
-      ...
-      Server: Docker Desktop
-       Engine:
-        Version:          24.0.5
-      ...
-      ```
+         GNU Make 3.81
+         ...
+         ```
+
+   c. Docker (Docker Desktop 4.30+/Docker Engine v23.0+)
+   
+      - On Linux Ubuntu:
+
+         1. To install from the Ubuntu repository, run `sudo apt update && sudo apt install docker.io docker-buildx docker-compose-v2`.
+         2. Add your user to the `docker` group: `sudo usermod -aG docker $USER`.
+         3. Log out and log back in to allow the changes to take effect.
+
+      - On Windows or macOS:
+
+         Follow Docker's documentation on installing the Docker Desktop on [Windows](https://docs.docker.com/desktop/install/windows-install/) or [macOS](https://docs.docker.com/desktop/install/mac-install/).
+
+         ```
+         docker version
+
+         ...
+         Server: Docker Desktop
+            Engine:
+            Version:          24.0.5
+         ...
+         ```
 
    d. JDK 17
 
-      - To install from Ubuntu repository, run: `sudo apt update && sudo apt install openjdk-17-jdk`
+      - On Linux Ubuntu:
 
-      ```
-      java --version
-      
-      openjdk 17.0.10 2024-01-16
-      ...
-      ```
+         To install from the Ubuntu repository, run: `sudo apt update && sudo apt install openjdk-17-jdk`.
+
+      - On Windows or macOS:
+
+         Follow Microsoft's documentation on [installing the Microsoft Build of OpenJDK](https://learn.microsoft.com/en-us/java/openjdk/install).
+
+         ```
+         java --version
+
+         openjdk 17.0.10 2024-01-16
+         ...
+         ```
 
    e. [Postman](https://www.postman.com/)
 
-      - Use binary available [here](https://www.postman.com/downloads/)
+      - Use the available binary from [Postman](https://www.postman.com/downloads/).
 
    f. [ngrok](https://ngrok.com/)
 
-      - Follow installation instruction for Linux [here](https://ngrok.com/download)
+      - Follow [ngrok's installation guide](https://ngrok.com/download).
+
+   g. [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli)
+
+      - Use the available binary from [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/releases).
 
    > :exclamation: In macOS, you may use [Homebrew](https://brew.sh/) to easily install some of the tools above.
 
@@ -104,8 +141,7 @@ custom roll function for platform service in `AccelByte Gaming Services`.
 
 ## Setup
 
-To be able to run the sample custom functions, you will need to follow these 
-setup steps.
+To be able to run this app, you will need to follow these setup steps.
 
 1. Create a docker compose `.env` file by copying the content of [.env.template](.env.template) file.
 
@@ -122,23 +158,26 @@ setup steps.
    PLUGIN_GRPC_SERVER_AUTH_ENABLED=true      # Enable or disable access token validation
    ```
 
-   > :exclamation: **In this sample app, PLUGIN_GRPC_SERVER_AUTH_ENABLED is `true` by default**: If it is set to `false`, the 
-   `gRPC server` can be invoked without `AccelByte Gaming Services` access token. This option is provided for development 
-   purpose only. It is recommended to enable `gRPC server` access token validation in production environment.
+   > :exclamation: **In this app, PLUGIN_GRPC_SERVER_AUTH_ENABLED is `true` by default**: If it is set to `false`, the gRPC server can be invoked without an AGS access 
+   token. This option is provided for development purpose only. It is 
+   recommended to enable `gRPC server` access token validation in production 
+   environment.
 
 ## Building
 
-To build this sample app, use the following command.
+To build this app, use the following command.
 
-```
+```shell
 make build
 ```
 
+The build output will be available in `.output` directory.
+
 ## Running
 
-To (build and) run this sample app in a container, use the following command.
+To (build and) run this app in a container, use the following command.
 
-```
+```shell
 docker compose up --build
 ```
 
@@ -149,9 +188,9 @@ docker compose up --build
 > :warning: **To perform the following, make sure PLUGIN_GRPC_SERVER_AUTH_ENABLED is set to `false`**: Otherwise,
 the gRPC request will be rejected by the `gRPC server`.
 
-The custom functions in this sample app can be tested locally using [postman](https://www.postman.com/).
+This app can be tested locally using [postman](https://www.postman.com/).
 
-1. Run this `gRPC server` sample app by using the command below.
+1. Run this app by using the command below.
 
    ```shell
    docker compose up --build
@@ -159,7 +198,7 @@ The custom functions in this sample app can be tested locally using [postman](ht
 
 2. Open `postman`, create a new `gRPC request`, and enter `localhost:6565` as server URL (see tutorial [here](https://blog.postman.com/postman-now-supports-grpc/)).
 
-   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this sample app as mentioned in [Test Observability](#test-observability)**: Enter `localhost:10000` instead of `localhost:6565`. This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
+   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this project as mentioned in [Test Observability](#test-observability)**: Use `localhost:10000` instead of `localhost:6565`. This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
 3. Continue by selecting `LootBox/RollLootBoxRewards` method and invoke it with the sample message below.
 
@@ -235,10 +274,11 @@ The custom functions in this sample app can be tested locally using [postman](ht
 
 ### Test with AccelByte Gaming Services
 
-For testing this sample app which is running locally with `AccelByte Gaming Services`,
-the `gRPC server` needs to be exposed to the internet. To do this without requiring public IP, we can use something like [ngrok](https://ngrok.com/).
+For testing this app which is running locally with AGS, the gRPC server 
+needs to be exposed to the internet. To do this without requiring public IP, we 
+can use something like [ngrok](https://ngrok.com/).
 
-1. Run this `gRPC server` sample app by using command below.
+1. Run this app by using command below.
 
    ```shell
    docker compose up --build
@@ -246,14 +286,14 @@ the `gRPC server` needs to be exposed to the internet. To do this without requir
 
 2. Sign-in/sign-up to [ngrok](https://ngrok.com/) and get your auth token in `ngrok` dashboard.
 
-3. In this sample app root directory, run the following helper command to expose `gRPC server` port in local development environment to the internet. Take a note of the `ngrok` forwarding URL e.g. `http://0.tcp.ap.ngrok.io:xxxxx`.
+3. In this app root directory, run the following helper command to expose `gRPC server` port in local development environment to the internet. Take a note of the `ngrok` forwarding URL e.g. `http://0.tcp.ap.ngrok.io:xxxxx`.
 
    ```
    make ngrok NGROK_AUTHTOKEN=xxxxxxxxxxx
    ```
 
-   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this sample app as mentioned in [Test Observability](#test-observability)**: Run the above 
-   command in `grpc-plugin-dependencies` directory instead of this sample app directory. 
+   > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this app as mentioned in [Test Observability](#test-observability)**: Run the above 
+   command in `grpc-plugin-dependencies` directory instead of this app directory. 
    This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
 5. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`. This is different from the Oauth Client from the Prerequisites section and it is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
@@ -302,7 +342,7 @@ set the required environment variables as shown below.
 
 ### Test Observability
 
-To be able to see the how the observability works in this sample app locally, there are few things that need be setup before performing tests.
+To be able to see the how the observability works in this app locally, there are few things that need be setup before performing tests.
 
 1. Uncomment loki logging driver in [docker-compose.yaml](docker-compose.yaml)
 
@@ -317,11 +357,11 @@ To be able to see the how the observability works in this sample app locally, th
    ```
 
    > :warning: **Make sure to install docker loki plugin beforehand**: Otherwise,
-   this sample app will not be able to run. This is required so that container logs
+   this project will not be able to run. This is required so that container logs
    can flow to the `loki` service within `grpc-plugin-dependencies` stack. 
    Use this command to install docker loki plugin: `docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions`.
 
-2. Clone and run [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this sample app. After this, Grafana 
+2. Clone and run [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this project. After this, Grafana 
 will be accessible at http://localhost:3000.
 
    ```
@@ -351,7 +391,7 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
    > :exclamation: For your convenience, the above `extend-helper-cli` command can also be 
    copied from `Repository Authentication Command` under the corresponding app detail page.
 
-4. Build and push sample app docker image to AccelByte ECR using the following command.
+4. Build and push this project docker image to AccelByte ECR using the following command.
    
    ```
    extend-helper-cli image-upload --work-dir <my-project-dir> --namespace <my-game> --app <my-app> --image-tag v0.0.1
@@ -371,4 +411,4 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
 
 ## Next Step
 
-Proceed to modify this template project and implement your own custom functions.
+Proceed to modify this project template and implement your own custom functions.

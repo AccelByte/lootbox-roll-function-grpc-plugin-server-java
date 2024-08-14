@@ -31,7 +31,7 @@ sequenceDiagram
 
 ## Build
 
-To build this CLI sample app, execute the following command.
+To build this CLI demo app, execute the following command.
 
 ```bash
 $ ./gradlew installDist
