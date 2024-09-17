@@ -12,7 +12,7 @@ flowchart LR
 ```
 
 `AccelByte Gaming Services` (AGS) features can be customized using 
-`Extend Override` apps. An `Extend Override` app is basically a gRPC server which 
+`Extend Override` apps. An `Extend Override` app is basically a `gRPC server` which 
 contains one or more custom functions which can be called by AGS instead of the 
 default functions.
 
@@ -21,7 +21,7 @@ default functions.
 This repository provides a project template to create an `Extend Override` 
 app for `lootbox roll function` written in `Java`. It includes an example of how the
 custom functions can be implemented. It also includes the essential 
-gRPC server authentication and authorization to ensure security. Additionally, 
+`gRPC server` authentication and authorization to ensure security. Additionally, 
 it comes with built-in instrumentation for observability, ensuring that metrics, 
 traces, and logs are available upon deployment.
 
@@ -158,7 +158,7 @@ To be able to run this app, you will need to follow these setup steps.
    PLUGIN_GRPC_SERVER_AUTH_ENABLED=true      # Enable or disable access token validation
    ```
 
-   > :exclamation: **In this app, PLUGIN_GRPC_SERVER_AUTH_ENABLED is `true` by default**: If it is set to `false`, the gRPC server can be invoked without an AGS access 
+   > :exclamation: **In this app, PLUGIN_GRPC_SERVER_AUTH_ENABLED is `true` by default**: If it is set to `false`, the `gRPC server` can be invoked without an AGS access 
    token. This option is provided for development purpose only. It is 
    recommended to enable `gRPC server` access token validation in production 
    environment.
@@ -274,7 +274,7 @@ This app can be tested locally using [postman](https://www.postman.com/).
 
 ### Test with AccelByte Gaming Services
 
-For testing this app which is running locally with AGS, the gRPC server 
+For testing this app which is running locally with AGS, the `gRPC server` 
 needs to be exposed to the internet. To do this without requiring public IP, we 
 can use something like [ngrok](https://ngrok.com/).
 
