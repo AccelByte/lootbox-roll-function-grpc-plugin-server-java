@@ -135,7 +135,7 @@ your own logic for the custom functions.
       - For `Shared Cloud` tier e.g.  https://spaceshooter.prod.gamingservices.accelbyte.io
       - For `Private Cloud` tier e.g.  https://dev.accelbyte.io
       
-   b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
+   b. [Create a Game Namespace](https://docs.accelbyte.io/gaming-services/tutorials/how-to/namespaces/create-a-game-namespace/) if you don't have one yet. Keep the `Namespace ID`.
 
    c. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with confidential client type. Keep the `Client ID` and `Client Secret`.
 
@@ -196,7 +196,7 @@ This app can be tested locally using [postman](https://www.postman.com/).
    docker compose up --build
    ```
 
-2. Open `postman`, create a new `gRPC request`, and enter `localhost:6565` as server URL (see tutorial [here](https://blog.postman.com/postman-now-supports-grpc/)).
+2. Open `postman`, create a new `gRPC request`, and enter `localhost:6565` as server URL.
 
    > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this project as mentioned in [Test Observability](#test-observability)**: Use `localhost:10000` instead of `localhost:6565`. This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
@@ -296,7 +296,7 @@ can use something like [ngrok](https://ngrok.com/).
    command in `grpc-plugin-dependencies` directory instead of this app directory. 
    This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
-5. [Create an OAuth Client](https://docs.accelbyte.io/guides/access/iam-client.html) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`. This is different from the Oauth Client from the Prerequisites section and it is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
+4. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`.
    
    - For AGS Private Cloud customers:
       - `ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [READ,UPDATE,DELETE]`
@@ -315,9 +315,9 @@ can use something like [ngrok](https://ngrok.com/).
 
    > :warning: **Oauth Client created in this step is different from the one from Prerequisites section:** It is required by CLI demo app [here](demo/cli/) in the next step to register the `gRPC Server` URL.
 
-6. Create a user for testing. Keep the `Username` and `Password`.
+5. Create a user for testing. Keep the `Username` and `Password`.
 
-7. In [demo/cli](demo/cli) folder, create an `.env` file by copying the content of [.env.template](demo/cli/.env.template) file and
+6. In [demo/cli](demo/cli) folder, create an `.env` file by copying the content of [.env.template](demo/cli/.env.template) file and
 set the required environment variables as shown below. 
 
    ```
