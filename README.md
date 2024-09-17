@@ -12,9 +12,9 @@ flowchart LR
 ```
 
 `AccelByte Gaming Services` (AGS) features can be customized using 
-`Extend Override` apps. An `Extend Override` app is a gRPC server which 
-contains one or more custom functions which can be called by AGS 
-instead of its default functions.
+`Extend Override` apps. An `Extend Override` app is basically a gRPC server which 
+contains one or more custom functions which can be called by AGS instead of the 
+default functions.
 
 ## Overview
 
