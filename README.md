@@ -409,4 +409,4 @@ After done testing, you may want to deploy this app to `AccelByte Gaming Service
 
 ## Next Step
 
-Proceed to create your own `Extend Override` app for `lootbox roll function` by modifying this project. See [here](https://docs.accelbyte.io/gaming-services/services/extend/override-ags-feature/lootbox-roll-function/) for more details.
+Proceed to create your own `Extend Override` app for `lootbox roll function` by modifying this project. See [here](https://docs.accelbyte.io/gaming-services/services/extend/override/lootbox-roll-function/) for more details.
