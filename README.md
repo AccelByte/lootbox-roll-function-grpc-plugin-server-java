@@ -376,7 +376,7 @@ will be accessible at http://localhost:3000.
 
 After done testing, you may want to deploy this app to `AccelByte Gaming Services`.
 
-1. [Create a new Extend Override App on Admin Portal](https://docs.accelbyte.io/gaming-services/services/extend/override-ags-feature/getting-started-with-lootbox-roll-customization/#create-the-extend-app). Keep the `Repository URI`.
+1. [Create a new Extend Override App on Admin Portal](https://docs.accelbyte.io/gaming-services/services/extend/override/getting-started-with-lootbox-roll-customization/#create-the-extend-app). Keep the `Repository URI`.
 
 2. Download and setup [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/) (only if it has not been done previously).
 
