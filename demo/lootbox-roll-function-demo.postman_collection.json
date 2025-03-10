@@ -1,0 +1,1445 @@
+{
+	"info": {
+		"_postman_id": "177ca4d6-fd00-44c4-8921-328fe60f5964",
+		"name": "Lootbox Roll Function Demo",
+		"description": "This `collection` requires an `environment` with the following variables.\n\n- `AB_BASE_URL`\n    \n- `AB_NAMESPACE`\n    \n- `AB_CLIENT_ID`\n    \n- `AB_CLIENT_SECRET`\n    \n- `EXTEND_APP_NAME` if you deployed your Extend App to AccelByte Gaming Services;\n    \n    - or `GRPC_SERVER_URL` if you're using Ngrok to expose a locally hosted Extend App (ex: `9.tcp.ap.ngrok.io:99999`)\n        \n\nYou will need following permissions for the IAM Client.  \nFor AGS Private Cloud customers:\n\n- `ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [CREATE,READ,UPDATE,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:STORE [CREATE,READ,UPDATE,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:CURRENCY [CREATE,READ,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:ITEM [CREATE,READ,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:USER:\\*:ENTITLEMENT [CREATE,READ,UPDATE,DELETE]`\n    \n\nFor AGS Shared Cloud customers:\n\n- Platform Store -> Service Plugin Config (Read, Update, Delete)\n    \n- Platform Store -> Store (Create, Read, Update, Delete)\n    \n- Platform Store -> Category (Create)\n    \n- Platform Store -> Currency (Create, Read, Delete)\n    \n- Platform Store -> Item (Create, Read, Delete)\n    \n- Platform Store -> Entitlement (Create, Read, Update, Delete)\n    \n\nMake sure you have deployed Extend Service Extension app. Get `EXTEND_APP_NAME` from extend app page in admin portal. For local deployment, use local url instead.\n\nPlease read [getting started with lootbox roll customization](https://docs.accelbyte.io/gaming-services/services/extend/override/getting-started-with-lootbox-roll-customization/) for more information.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17100405"
+	},
+	"item": [
+		{
+			"name": "10-client-login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Store client access token in collection variable\", function () {\r",
+							"    var responseJson = pm.response.json();\r",
+							"    \r",
+							"    if (responseJson.access_token !== undefined) {\r",
+							"        pm.collectionVariables.set('CLIENT_ACCESS_TOKEN', responseJson.access_token)\r",
+							"    }\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{AB_CLIENT_SECRET}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{AB_CLIENT_ID}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/iam/v3/oauth/token",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"iam",
+						"v3",
+						"oauth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "20-client-create-test-user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Store test user id, email, and password in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    if (responseJson.data[0].userId !== undefined) {",
+							"        pm.collectionVariables.set('TEST_USER_ID', responseJson.data[0].userId)",
+							"    }",
+							"    if (responseJson.data[0].emailAddress !== undefined) {",
+							"        pm.collectionVariables.set('TEST_USER_EMAIL', responseJson.data[0].emailAddress)",
+							"    }",
+							"    if (responseJson.data[0].password !== undefined) {",
+							"        pm.collectionVariables.set('TEST_USER_PASSWORD', responseJson.data[0].password)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"count\": 1,\n  \"userInfo\": {\n    \"country\": \"US\"\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/iam/v4/admin/namespaces/{{AB_NAMESPACE}}/test_users",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"iam",
+						"v4",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"test_users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "30-unregister-lootbox-plugin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/catalog/plugins/lootbox",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"catalog",
+						"plugins",
+						"lootbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "31-register-lootbox-plugin",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"let requestBody = {",
+							"    customFunction: {",
+							"        afterReadGameRecord: true,",
+							"        beforeWritePlayerRecord: true",
+							"    }",
+							"};",
+							"",
+							"let extendAppName = pm.collectionVariables.get(\"EXTEND_APP_NAME\");",
+							"let grpcServerUrl = pm.collectionVariables.get(\"GRPC_SERVER_URL\");",
+							"",
+							"if (!extendAppName) {",
+							"    extendAppName = pm.globals.get(\"EXTEND_APP_NAME\");",
+							"}",
+							"",
+							"if (!extendAppName) {",
+							"    extendAppName = pm.environment.get(\"EXTEND_APP_NAME\");",
+							"}",
+							"",
+							"if (!grpcServerUrl) {",
+							"    grpcServerUrl = pm.globals.get(\"GRPC_SERVER_URL\");",
+							"}",
+							"",
+							"if (!grpcServerUrl) {",
+							"    grpcServerUrl = pm.environment.get(\"GRPC_SERVER_URL\");",
+							"}",
+							"",
+							"if (extendAppName) {",
+							"    requestBody.extendType = \"APP\";",
+							"    requestBody.appConfig = {",
+							"        appName: extendAppName",
+							"    };",
+							"} else if (grpcServerUrl) {",
+							"    requestBody.extendType = \"CUSTOM\";",
+							"    requestBody.customConfig = {",
+							"        connectionType: \"INSECURE\",",
+							"        grpcServerAddress: grpcServerUrl",
+							"    };",
+							"} else {",
+							"    pm.test(\"'EXTEND_APP_NAME' or 'GRPC_SERVER_URL' was set\", function () {",
+							"        pm.expect(requestBody.extendType).to.be.a(\"string\").and.to.have.length.above(0);",
+							"    });",
+							"    pm.execution.skipRequest();",
+							"}",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/catalog/plugins/lootbox",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"catalog",
+						"plugins",
+						"lootbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "40-create-currency",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 409\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 409]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"currencyCode\": \"{{TEST_CURRENCY_CODE}}\",\n    \"currencySymbol\": \"$\",\n    \"currencyType\": \"VIRTUAL\",\n    \"decimals\": 0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/currencies",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"currencies"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "41-create-store",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"",
+							"let storeUuid = uuid.v4();",
+							"",
+							"let requestBody = {",
+							"    title: \"Lootbox Plugin Demo Store\",",
+							"    defaultLanguage: \"en\",",
+							"    defaultRegion: \"US\",",
+							"    description: `A store created for the Lootbox Plugin Demo. (${storeUuid})`,",
+							"    supportedLanguages: [\"en\"],",
+							"    supportedRegions: [\"US\"]",
+							"};",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Store store identifier in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    if (responseJson.storeId !== undefined) {",
+							"        pm.collectionVariables.set('TEST_STORE_ID', responseJson.storeId)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/stores",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"stores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "42-create-category",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"categoryPath\": \"{{TEST_CATEGORY_PATH}}\",\n    \"localizationDisplayNames\": {\n        \"en\": \"{{TEST_CATEGORY_PATH}}\"\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/categories?storeId={{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"categories"
+					],
+					"query": [
+						{
+							"key": "storeId",
+							"value": "{{TEST_STORE_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "431-create-lootbox-item-1",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"",
+							"let itemIndex = 1;",
+							"let itemUuid = uuid.v4();",
+							"let itemName = `Lootbox Reward Item ${itemIndex} ${itemUuid}`;",
+							"let itemSku = `SKU_${itemUuid}_${itemIndex}`;",
+							"",
+							"let requestBody = {",
+							"    name: itemName,",
+							"    categoryPath: pm.collectionVariables.get(\"TEST_CATEGORY_PATH\"),",
+							"    entitlementType: \"DURABLE\",",
+							"    itemType: \"SEASON\",",
+							"    localizations: {",
+							"        \"en\": {",
+							"            title: itemName",
+							"        }",
+							"    },",
+							"    regionData: {",
+							"        \"US\": [",
+							"            {",
+							"                currencyCode: pm.collectionVariables.get(\"TEST_CURRENCY_CODE\"),",
+							"                currencyNamespace: pm.environment.get(\"AB_NAMESPACE\"),",
+							"                currencyType: \"REAL\",",
+							"                price: itemIndex * 2",
+							"            }",
+							"        ]",
+							"    },",
+							"    status: \"ACTIVE\",",
+							"    seasonType: \"TIER\",",
+							"    listable: true,",
+							"    purchasable: true,",
+							"    sku: itemSku",
+							"};",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Store item identifier in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    if (responseJson.itemId !== undefined) {",
+							"        pm.collectionVariables.set('TEST_LOOTBOX_ITEM_ID_1', responseJson.itemId)",
+							"    }",
+							"",
+							"    if (responseJson.sku !== undefined) {",
+							"        pm.collectionVariables.set('TEST_LOOTBOX_ITEM_SKU_1', responseJson.sku)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/items?storeId={{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"items"
+					],
+					"query": [
+						{
+							"key": "storeId",
+							"value": "{{TEST_STORE_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "432-create-lootbox-item-2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"",
+							"let itemIndex = 2;",
+							"let itemUuid = uuid.v4();",
+							"let itemName = `Lootbox Reward Item ${itemIndex} ${itemUuid}`;",
+							"let itemSku = `SKU_${itemUuid}_${itemIndex}`;",
+							"",
+							"let requestBody = {",
+							"    name: itemName,",
+							"    categoryPath: pm.collectionVariables.get(\"TEST_CATEGORY_PATH\"),",
+							"    entitlementType: \"DURABLE\",",
+							"    itemType: \"SEASON\",",
+							"    localizations: {",
+							"        \"en\": {",
+							"            title: itemName",
+							"        }",
+							"    },",
+							"    regionData: {",
+							"        \"US\": [",
+							"            {",
+							"                currencyCode: pm.collectionVariables.get(\"TEST_CURRENCY_CODE\"),",
+							"                currencyNamespace: pm.environment.get(\"AB_NAMESPACE\"),",
+							"                currencyType: \"REAL\",",
+							"                price: itemIndex * 2",
+							"            }",
+							"        ]",
+							"    },",
+							"    status: \"ACTIVE\",",
+							"    seasonType: \"TIER\",",
+							"    listable: true,",
+							"    purchasable: true,",
+							"    sku: itemSku",
+							"};",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Store item identifier in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    if (responseJson.itemId !== undefined) {",
+							"        pm.collectionVariables.set('TEST_LOOTBOX_ITEM_ID_2', responseJson.itemId)",
+							"    }",
+							"",
+							"    if (responseJson.sku !== undefined) {",
+							"        pm.collectionVariables.set('TEST_LOOTBOX_ITEM_SKU_2', responseJson.sku)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/items?storeId={{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"items"
+					],
+					"query": [
+						{
+							"key": "storeId",
+							"value": "{{TEST_STORE_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "433-create-lootbox-item-3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"",
+							"let itemIndex = 3;",
+							"let itemUuid = uuid.v4();",
+							"let itemName = `Lootbox Reward Item ${itemIndex} ${itemUuid}`;",
+							"let itemSku = `SKU_${itemUuid}_${itemIndex}`;",
+							"",
+							"let requestBody = {",
+							"    name: itemName,",
+							"    categoryPath: pm.collectionVariables.get(\"TEST_CATEGORY_PATH\"),",
+							"    entitlementType: \"DURABLE\",",
+							"    itemType: \"SEASON\",",
+							"    localizations: {",
+							"        \"en\": {",
+							"            title: itemName",
+							"        }",
+							"    },",
+							"    regionData: {",
+							"        \"US\": [",
+							"            {",
+							"                currencyCode: pm.collectionVariables.get(\"TEST_CURRENCY_CODE\"),",
+							"                currencyNamespace: pm.environment.get(\"AB_NAMESPACE\"),",
+							"                currencyType: \"REAL\",",
+							"                price: itemIndex * 2",
+							"            }",
+							"        ]",
+							"    },",
+							"    status: \"ACTIVE\",",
+							"    seasonType: \"TIER\",",
+							"    listable: true,",
+							"    purchasable: true,",
+							"    sku: itemSku",
+							"};",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Store item identifier in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    if (responseJson.itemId !== undefined) {",
+							"        pm.collectionVariables.set('TEST_LOOTBOX_ITEM_ID_3', responseJson.itemId)",
+							"    }",
+							"",
+							"    if (responseJson.sku !== undefined) {",
+							"        pm.collectionVariables.set('TEST_LOOTBOX_ITEM_SKU_3', responseJson.sku)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/items?storeId={{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"items"
+					],
+					"query": [
+						{
+							"key": "storeId",
+							"value": "{{TEST_STORE_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "44-create-item",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"",
+							"let itemIndex = 1;",
+							"let itemUuid = uuid.v4();",
+							"let itemName = `Lootbox Item ${itemIndex} ${itemUuid}`;",
+							"let itemSku = `SKU_${itemUuid}_${itemIndex}`;",
+							"",
+							"let requestBody = {",
+							"    name: itemName,",
+							"    categoryPath: pm.collectionVariables.get(\"TEST_CATEGORY_PATH\"),",
+							"    entitlementType: \"CONSUMABLE\",",
+							"    itemType: \"LOOTBOX\",",
+							"    localizations: {",
+							"        \"en\": {",
+							"            title: itemName",
+							"        }",
+							"    },",
+							"    regionData: {",
+							"        \"US\": [",
+							"            {",
+							"                currencyCode: pm.collectionVariables.get(\"TEST_CURRENCY_CODE\"),",
+							"                currencyNamespace: pm.environment.get(\"AB_NAMESPACE\"),",
+							"                currencyType: \"REAL\",",
+							"                price: itemIndex * 2",
+							"            }",
+							"        ]",
+							"    },",
+							"    status: \"ACTIVE\",",
+							"    seasonType: \"TIER\",",
+							"    listable: true,",
+							"    purchasable: true,",
+							"    sku: itemSku,",
+							"    useCount: 100,",
+							"    lootBoxConfig: {",
+							"        rewardCount: 3,",
+							"        rewards: [",
+							"            {",
+							"                name: \"Lootbox Reward Item 1\",",
+							"                type: \"REWARD\",",
+							"                weight: 1,",
+							"                lootBoxItems: [",
+							"                    {",
+							"                        count: 1,",
+							"                        itemId: pm.collectionVariables.get(\"TEST_LOOTBOX_ITEM_ID_1\"),",
+							"                        itemSku: pm.collectionVariables.get(\"TEST_LOOTBOX_ITEM_SKU_1\")",
+							"                    }",
+							"                ]",
+							"            },",
+							"            {",
+							"                name: \"Lootbox Reward Item 2\",",
+							"                type: \"REWARD\",",
+							"                weight: 1,",
+							"                lootBoxItems: [",
+							"                    {",
+							"                        count: 1,",
+							"                        itemId: pm.collectionVariables.get(\"TEST_LOOTBOX_ITEM_ID_2\"),",
+							"                        itemSku: pm.collectionVariables.get(\"TEST_LOOTBOX_ITEM_SKU_2\")",
+							"                    }",
+							"                ]",
+							"            },",
+							"            {",
+							"                name: \"Lootbox Reward Item 3\",",
+							"                type: \"REWARD\",",
+							"                weight: 1,",
+							"                lootBoxItems: [",
+							"                    {",
+							"                        count: 1,",
+							"                        itemId: pm.collectionVariables.get(\"TEST_LOOTBOX_ITEM_ID_3\"),",
+							"                        itemSku: pm.collectionVariables.get(\"TEST_LOOTBOX_ITEM_SKU_3\")",
+							"                    }",
+							"                ]",
+							"            }",
+							"        ],",
+							"        roll_function: \"CUSTOM\"",
+							"    }",
+							"};",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Store item identifier in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    if (responseJson.itemId !== undefined) {",
+							"        pm.collectionVariables.set('TEST_ITEM_ID', responseJson.itemId)",
+							"    }",
+							"",
+							"    if (responseJson.sku !== undefined) {",
+							"        pm.collectionVariables.set('TEST_ITEM_SKU', responseJson.sku)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/items?storeId={{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"items"
+					],
+					"query": [
+						{
+							"key": "storeId",
+							"value": "{{TEST_STORE_ID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "45-publish-store",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/stores/{{TEST_STORE_ID}}/catalogChanges/publishAll",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"stores",
+						"{{TEST_STORE_ID}}",
+						"catalogChanges",
+						"publishAll"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "50-grant-entitlement",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Store item identifier in collection variable\", function () {",
+							"    var responseJson = pm.response.json();",
+							"    ",
+							"    var entitlementInfo = responseJson[0];",
+							"",
+							"    if (entitlementInfo.id !== undefined) {",
+							"        pm.collectionVariables.set('TEST_ENTITLEMENT_ID', entitlementInfo.id)",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n    {\n        \"itemId\": \"{{TEST_ITEM_ID}}\",\n        \"itemNamespace\": \"{{AB_NAMESPACE}}\",\n        \"quantity\": 1,\n        \"source\": \"GIFT\"\n    }\n]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/users/{{TEST_USER_ID}}/entitlements",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"users",
+						"{{TEST_USER_ID}}",
+						"entitlements"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "51-consume-entitlement",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var uuid = require(\"uuid\");",
+							"",
+							"let requestId = uuid.v4();",
+							"",
+							"let requestBody = {",
+							"    requestId: requestId,",
+							"    useCount: 2",
+							"};",
+							"",
+							"pm.variables.set(\"requestBody\", JSON.stringify(requestBody));"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{requestBody}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/users/{{TEST_USER_ID}}/entitlements/{{TEST_ENTITLEMENT_ID}}/decrement",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"users",
+						"{{TEST_USER_ID}}",
+						"entitlements",
+						"{{TEST_ENTITLEMENT_ID}}",
+						"decrement"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "80-delete-currency",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/currencies/{{TEST_CURRENCY_CODE}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"currencies",
+						"{{TEST_CURRENCY_CODE}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "81-delete-store",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('TEST_STORE_ID', \"\");",
+							"",
+							"pm.collectionVariables.set('TEST_LOOTBOX_ITEM_ID_1', \"\");",
+							"pm.collectionVariables.set('TEST_LOOTBOX_ITEM_SKU_1', \"\");",
+							"pm.collectionVariables.set('TEST_LOOTBOX_ITEM_ID_2', \"\");",
+							"pm.collectionVariables.set('TEST_LOOTBOX_ITEM_SKU_2', \"\");",
+							"pm.collectionVariables.set('TEST_LOOTBOX_ITEM_ID_3', \"\");",
+							"pm.collectionVariables.set('TEST_LOOTBOX_ITEM_SKU_3', \"\");",
+							"pm.collectionVariables.set('TEST_ITEM_ID', \"\");",
+							"pm.collectionVariables.set('TEST_ITEM_SKU', \"\");",
+							"pm.collectionVariables.set('TEST_ENTITLEMENT_ID', \"\");"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/stores/{{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"stores",
+						"{{TEST_STORE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "82-unregister-lootbox-plugin",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/catalog/plugins/lootbox",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"catalog",
+						"plugins",
+						"lootbox"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "90-client-delete-test-user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set('TEST_USER_ID', \"\");",
+							"pm.collectionVariables.set('TEST_USER_EMAIL', \"\");",
+							"pm.collectionVariables.set('TEST_USER_PASSWORD', \"\");"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/iam/v3/admin/namespaces/{{AB_NAMESPACE}}/users/{{TEST_USER_ID}}/information",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"iam",
+						"v3",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"users",
+						"{{TEST_USER_ID}}",
+						"information"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "CLIENT_ACCESS_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_USER_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_USER_EMAIL",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_USER_PASSWORD",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_CURRENCY_CODE",
+			"value": "USDT",
+			"type": "string"
+		},
+		{
+			"key": "TEST_STORE_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_CATEGORY_PATH",
+			"value": "/lootboxRollFunctionDemo",
+			"type": "string"
+		},
+		{
+			"key": "TEST_LOOTBOX_ITEM_ID_1",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_LOOTBOX_ITEM_SKU_1",
+			"value": ""
+		},
+		{
+			"key": "TEST_LOOTBOX_ITEM_ID_2",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_LOOTBOX_ITEM_SKU_2",
+			"value": ""
+		},
+		{
+			"key": "TEST_LOOTBOX_ITEM_ID_3",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_LOOTBOX_ITEM_SKU_3",
+			"value": ""
+		},
+		{
+			"key": "TEST_ITEM_ID",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "TEST_ITEM_SKU",
+			"value": ""
+		},
+		{
+			"key": "TEST_ENTITLEMENT_ID",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
