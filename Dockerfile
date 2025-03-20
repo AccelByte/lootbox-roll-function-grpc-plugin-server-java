@@ -18,4 +18,4 @@ COPY jars/aws-opentelemetry-agent.jar aws-opentelemetry-agent.jar
 COPY --from=builder /build/target/*.jar app.jar
 # gRPC server port and and /metrics HTTP port
 EXPOSE 6565 8080
-CMD [ "java", "-javaagent:aws-opentelemetry-agent.jar", "-jar", "app.jar" ]
+ENTRYPOINT exec java -javaagent:aws-opentelemetry-agent.jar $JAVA_OPTS -jar app.jar
