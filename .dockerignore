@@ -1,5 +1,5 @@
 .env
-.gradle
-Dockerfile
-Makefile
+.gradle/
+.vscode/
+bin/
 target/
