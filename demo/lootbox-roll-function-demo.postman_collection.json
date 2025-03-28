@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "177ca4d6-fd00-44c4-8921-328fe60f5964",
+		"_postman_id": "f81d7e86-1c9d-45a2-9ed8-55e257617223",
 		"name": "Lootbox Roll Function Demo",
 		"description": "This `collection` requires an `environment` with the following variables.\n\n- `AB_BASE_URL`\n    \n- `AB_NAMESPACE`\n    \n- `AB_CLIENT_ID`\n    \n- `AB_CLIENT_SECRET`\n    \n- `EXTEND_APP_NAME` if you deployed your Extend App to AccelByte Gaming Services;\n    \n    - or `GRPC_SERVER_URL` if you're using Ngrok to expose a locally hosted Extend App (ex: `9.tcp.ap.ngrok.io:99999`)\n        \n\nYou will need following permissions for the IAM Client.  \nFor AGS Private Cloud customers:\n\n- `ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [CREATE,READ,UPDATE,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:STORE [CREATE,READ,UPDATE,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:CATEGORY [CREATE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:CURRENCY [CREATE,READ,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:ITEM [CREATE,READ,DELETE]`\n    \n- `ADMIN:NAMESPACE:{namespace}:USER:\\*:ENTITLEMENT [CREATE,READ,UPDATE,DELETE]`\n    \n\nFor AGS Shared Cloud customers:\n\n- Platform Store -> Service Plugin Config (Read, Update, Delete)\n    \n- Platform Store -> Store (Create, Read, Update, Delete)\n    \n- Platform Store -> Category (Create)\n    \n- Platform Store -> Currency (Create, Read, Delete)\n    \n- Platform Store -> Item (Create, Read, Delete)\n    \n- Platform Store -> Entitlement (Create, Read, Update, Delete)\n    \n\nMake sure you have deployed Extend Service Extension app. Get `EXTEND_APP_NAME` from extend app page in admin portal. For local deployment, use local url instead.\n\nPlease read [getting started with lootbox roll customization](https://docs.accelbyte.io/gaming-services/services/extend/override/getting-started-with-lootbox-roll-customization/) for more information.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "17100405"
+		"_exporter_id": "19336018"
 	},
 	"item": [
 		{
@@ -322,7 +322,127 @@
 			"response": []
 		},
 		{
-			"name": "41-create-store",
+			"name": "41-list-stores",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"List store and get draft store id if exists\", function () {",
+							"    if (pm.response.code == 200) {",
+							"        var responseJson = pm.response.json();    ",
+							"        responseJson.forEach((item) => {",
+							"            if (!item.published) {",
+							"                pm.collectionVariables.set('TEST_STORE_ID', item.storeId)",
+							"            }",
+							"        })",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/stores",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"stores"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "42-delete-store",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Delete draft store if exists.\r",
+							"\r",
+							"let storeId = pm.collectionVariables.get('TEST_STORE_ID');\r",
+							"if (storeId === undefined || storeId === null || storeId === \"\")\r",
+							"    pm.execution.skipRequest();"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/stores/{{TEST_STORE_ID}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"stores",
+						"{{TEST_STORE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "43-create-store",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -407,7 +527,7 @@
 			"response": []
 		},
 		{
-			"name": "42-create-category",
+			"name": "45-create-category",
 			"event": [
 				{
 					"listen": "test",
@@ -467,7 +587,7 @@
 			"response": []
 		},
 		{
-			"name": "431-create-lootbox-item-1",
+			"name": "51-create-lootbox-item-1",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -583,7 +703,7 @@
 			"response": []
 		},
 		{
-			"name": "432-create-lootbox-item-2",
+			"name": "52-create-lootbox-item-2",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -699,7 +819,7 @@
 			"response": []
 		},
 		{
-			"name": "433-create-lootbox-item-3",
+			"name": "53-create-lootbox-item-3",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -815,7 +935,7 @@
 			"response": []
 		},
 		{
-			"name": "44-create-item",
+			"name": "54-create-item",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -974,7 +1094,7 @@
 			"response": []
 		},
 		{
-			"name": "45-publish-store",
+			"name": "62-publish-store",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -1032,7 +1152,7 @@
 			"response": []
 		},
 		{
-			"name": "50-grant-entitlement",
+			"name": "72-grant-entitlement",
 			"event": [
 				{
 					"listen": "test",
@@ -1098,7 +1218,7 @@
 			"response": []
 		},
 		{
-			"name": "51-consume-entitlement",
+			"name": "73-consume-entitlement",
 			"event": [
 				{
 					"listen": "prerequest",
@@ -1175,39 +1295,7 @@
 			"response": []
 		},
 		{
-			"name": "80-delete-currency",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{CLIENT_ACCESS_TOKEN}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/currencies/{{TEST_CURRENCY_CODE}}",
-					"host": [
-						"{{AB_BASE_URL}}"
-					],
-					"path": [
-						"platform",
-						"admin",
-						"namespaces",
-						"{{AB_NAMESPACE}}",
-						"currencies",
-						"{{TEST_CURRENCY_CODE}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "81-delete-store",
+			"name": "80-delete-store",
 			"event": [
 				{
 					"listen": "test",
@@ -1255,6 +1343,38 @@
 						"{{AB_NAMESPACE}}",
 						"stores",
 						"{{TEST_STORE_ID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "81-delete-currency",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{CLIENT_ACCESS_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{AB_BASE_URL}}/platform/admin/namespaces/{{AB_NAMESPACE}}/currencies/{{TEST_CURRENCY_CODE}}",
+					"host": [
+						"{{AB_BASE_URL}}"
+					],
+					"path": [
+						"platform",
+						"admin",
+						"namespaces",
+						"{{AB_NAMESPACE}}",
+						"currencies",
+						"{{TEST_CURRENCY_CODE}}"
 					]
 				}
 			},
