@@ -118,13 +118,19 @@ your own logic for the custom functions.
 
       - Use the available binary from [Postman](https://www.postman.com/downloads/).
 
-   f. [ngrok](https://ngrok.com/)
-
-      - Follow [ngrok's installation guide](https://ngrok.com/downloads).
-
-   g. [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli)
+   f. [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli)
 
       - Use the available binary from [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/releases).
+
+   g. Local tunnel service that has TCP forwarding capability, such as:
+
+      - [Ngrok](https://ngrok.com/)
+         
+         Need registration for free tier. Please refer to [ngrok documentation](https://ngrok.com/docs/getting-started/) for a quick start.
+
+      - [Pinggy](https://pinggy.io/)
+
+         Free to try without registration. Please refer to [pinggy documentation](https://pinggy.io/docs/) for a quick start.
 
    > :exclamation: In macOS, you may use [Homebrew](https://brew.sh/) to easily install some of the tools above.
 
@@ -272,9 +278,7 @@ This app can be tested locally using [postman](https://www.postman.com/).
 
 ### Test with AccelByte Gaming Services
 
-For testing this app which is running locally with AGS, the `gRPC server` 
-needs to be exposed to the internet. To do this without requiring public IP, we 
-can use something like [ngrok](https://ngrok.com/).
+To test the app, which runs locally with AGS, the `gRPC server` needs to be connected to the internet. To do this without requiring public IP, you can use local tunnel service.
 
 1. Run this app by using command below.
 
@@ -282,21 +286,28 @@ can use something like [ngrok](https://ngrok.com/).
    docker compose up --build
    ```
 
-2. Sign-in/sign-up to [ngrok](https://ngrok.com/) and get your auth token in `ngrok` dashboard.
+2. Expose `gRPC server` TCP port 6565 in local development environment to the internet. Simplest way to do this is by using local tunnel service provider.
+   - Sign in to [ngrok](https://ngrok.com/) and get your `authtoken` from the ngrok dashboard and set it up in your local environment.
+      And, to expose `gRPC server` use following command:
+      ```bash
+      ngrok tcp 6565
+      ```
 
-3. In this app root directory, run the following helper command to expose `gRPC server` port in local development environment to the internet. Take a note of the `ngrok` forwarding URL e.g. `http://0.tcp.ap.ngrok.io:xxxxx`.
+   - **Or** alternatively, you can use [pinggy](https://pinggy.io/) and use only `ssh` command line to setup simple tunnel.
+      Then to expose `gRPC server` use following command:
+      ```bash
+      ssh -p 443 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R0:127.0.0.1:6565 tcp@a.pinggy.io
+      ```
 
-   ```
-   make ngrok NGROK_AUTHTOKEN=xxxxxxxxxxx
-   ```
+   Please take note of the tunnel forwarding URL, e.g., `http://0.tcp.ap.ngrok.io:xxxxx` or `tcp://xxxxx-xxx-xxx-xxx-xxx.a.free.pinggy.link:xxxxx`.
 
-   > :warning: **Ngrok free plan has some limitations**: You may want to use paid plan if the traffic is high.
+   > :exclamation: You may also use other local tunnel service and different method to expose the gRPC server port (TCP) to the internet.
 
    > :warning: **If you are running [grpc-plugin-dependencies](https://github.com/AccelByte/grpc-plugin-dependencies) stack alongside this app as mentioned in [Test Observability](#test-observability)**: Run the above 
-   command in `grpc-plugin-dependencies` directory instead of this app directory. 
+   command in `grpc-plugin-dependencies` directory instead of this app directory and change tunnel local port from 6565 to 10000.
    This way, the `gRPC server` will be called via `Envoy` service within `grpc-plugin-dependencies` stack instead of directly.
 
-4. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`.
+3. [Create an OAuth Client](https://docs.accelbyte.io/gaming-services/services/access/authorization/manage-access-control-for-applications/#create-an-iam-client) with `confidential` client type with the following permissions. Keep the `Client ID` and `Client Secret`.
    
    - For AGS Private Cloud customers:
       - `ADMIN:NAMESPACE:{namespace}:PLUGIN:CATALOG [READ,UPDATE,DELETE]`
@@ -315,7 +326,7 @@ can use something like [ngrok](https://ngrok.com/).
 
    > :warning: **Oauth Client created in this step is different from the one from Prerequisites section:** It is required by the Postman collection in the next step to register the `gRPC Server` URL and also to create and delete test users.
 
-5. Follow the instructions in the [Postman collection](demo/lootbox-roll-function-demo.postman_collection.json) overview to set up the environment, using the `Client ID` and `Client Secret` from the previous step. Pay attention to this app console log when extend app flow is running. At least one of the `gRPC Server` methods should get called when you run all the requests in the collection.
+4. Follow the instructions in the [Postman collection](demo/lootbox-roll-function-demo.postman_collection.json) overview to set up the environment, using the `Client ID` and `Client Secret` from the previous step. Pay attention to this app console log when extend app flow is running. At least one of the `gRPC Server` methods should get called when you run all the requests in the collection.
 
 ### Test Observability
 
