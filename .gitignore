@@ -193,3 +193,5 @@ gradle-app.setting
 .vscode/
 bin/
 target/
+
+.DS_Store
