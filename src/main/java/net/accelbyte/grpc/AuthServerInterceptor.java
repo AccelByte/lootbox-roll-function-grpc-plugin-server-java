@@ -31,7 +31,7 @@ public class AuthServerInterceptor implements ServerInterceptor {
     @Autowired
     public AuthServerInterceptor(
             AccelByteSDK sdk,
-            @Value("app.namespace") String namespace) {
+            @Value("${app.namespace}") String namespace) {
 
         this.sdk = sdk;
 
