@@ -364,39 +364,33 @@ will be accessible at http://localhost:3000.
 
 ## Deploying
 
-After done testing, you may want to deploy this app to `AccelByte Gaming Services`.
+After completing testing, the next step is to deploy your app to `AccelByte Gaming Services`.
 
-1. [Create a new Extend Override App on Admin Portal](https://docs.accelbyte.io/gaming-services/services/extend/override/getting-started-with-lootbox-roll-customization/#create-the-extend-app). Keep the `Repository URI`.
+1. **Create an Extend Override app**
 
-2. Download and setup [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli/) (only if it has not been done previously).
+   If you do not already have one, create a new [Extend Override App](https://docs.accelbyte.io/gaming-services/services/extend/override/loot-box-roll/get-started-loot-box-roll/#create-the-extend-app).
 
-3. Perform docker login with `extend-helper-cli` using the following command.
+   On the **App Detail** page, take note of the following values.
+   - `Namespace`
+   - `App Name`
+
+2. **Build and Push the Container Image**
+
+   Use [extend-helper-cli](https://github.com/AccelByte/extend-helper-cli) to build and upload the container image.
 
    ```
-   extend-helper-cli dockerlogin --namespace <my-game> --app <my-app> --login
+   extend-helper-cli image-upload --login --namespace <namespace> --app <app-name> --image-tag v0.0.1
    ```
 
-   > :exclamation: For your convenience, the above `extend-helper-cli` command can also be 
-   copied from `Repository Authentication Command` under the corresponding app detail page.
+   > :warning: Run this command from your project directory. If you are in a different directory, add the `--work-dir <project-dir>` option to specify the correct path.
 
-4. Build and push this project docker image to AccelByte ECR using the following command.
+3. **Deploy the Image**
    
-   ```
-   extend-helper-cli image-upload --work-dir <my-project-dir> --namespace <my-game> --app <my-app> --image-tag v0.0.1
-   ```
-
-   > :warning: Make sure to perform docker login (step 3) before executing the above command.
-
-5. Open Admin Portal, go to **Extend** -> **Overridable Features**. And then select the extend app.
-
-6. To deploy selected image tag, click **Image Version History** and select 
-   desired image tag to be deployed.
-
-7. Click **Deploy Image**, confirm the deployment and go back to App Detail by 
-   clicking **Cancel**.
-
-8. Wait until app status is running.
+   On the **App Detail** page:
+   - Click **Image Version History**
+   - Select the image you just pushed
+   - Click **Deploy Image**
 
 ## Next Step
 
-Proceed to create your own `Extend Override` app for `lootbox roll function` by modifying this project. See [here](https://docs.accelbyte.io/gaming-services/services/extend/override/lootbox-roll-function/) for more details.
+Proceed by modifying this `Extend Override` app template to implement your own custom logic. For more details, see [here](https://docs.accelbyte.io/gaming-services/services/extend/override/loot-box-roll/customize-loot-box-roll/).
