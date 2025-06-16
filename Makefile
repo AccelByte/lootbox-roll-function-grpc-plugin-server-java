@@ -1,10 +1,13 @@
-# Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
+# Copyright (c) 2025 AccelByte Inc. All Rights Reserved.
 # This is licensed software from AccelByte Inc, for limitations
 # and restrictions contact your company contract manager.
 
 SHELL := /bin/bash
 
+PROJECT_NAME := $(shell basename "$$(pwd)")
 GRADLE_IMAGE := gradle:7.6.4-jdk17
+
+BUILD_CACHE_VOLUME := $(shell echo '$(PROJECT_NAME)' | sed 's/[^a-zA-Z0-9_-]//g')-build-cache
 
 IMAGE_NAME := $(shell basename "$$(pwd)")-app
 BUILDER := extend-builder
@@ -13,29 +16,41 @@ BUILDER := extend-builder
 
 build:
 	docker run -t --rm \
-			-u $$(id -u):$$(id -g) \
-			-v $$(pwd):/data \
-			-w /data \
-			-e GRADLE_USER_HOME=.gradle \
+			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
 			$(GRADLE_IMAGE) \
-			gradle -i --no-daemon generateProto \
-					|| find .gradle -type f -iname 'protoc-*.exe' -exec chmod +x {} \;		# For MacOS docker host: Workaround to make protoc-*.exe executable
+			chown $$(id -u):$$(id -g) /tmp/build-cache		# For MacOS docker host: Workaround for /tmp/build-cache folder owned by root
 	docker run -t --rm \
 			-u $$(id -u):$$(id -g) \
+			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
 			-v $$(pwd):/data \
 			-w /data \
-			-e GRADLE_USER_HOME=.gradle \
 			$(GRADLE_IMAGE) \
-			gradle -i --no-daemon build
+			gradle \
+					--gradle-user-home /tmp/build-cache/gradle \
+					--project-cache-dir /tmp/build-cache/gradle \
+					--console=plain \
+					--info \
+					--no-daemon \
+					build
 
 clean:
 	docker run -t --rm \
+			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
+			$(GRADLE_IMAGE) \
+			chown $$(id -u):$$(id -g) /tmp/build-cache		# For MacOS docker host: Workaround for /tmp/build-cache folder owned by root
+	docker run -t --rm \
 			-u $$(id -u):$$(id -g) \
+			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
 			-v $$(pwd):/data \
 			-w /data \
-			-e GRADLE_USER_HOME=.gradle \
 			$(GRADLE_IMAGE) \
-			gradle -i --no-daemon clean
+			gradle \
+					--gradle-user-home /tmp/build-cache/gradle \
+					--project-cache-dir /tmp/build-cache/gradle \
+					--console=plain \
+					--info \
+					--no-daemon \
+					clean
 
 image:
 	docker buildx build -t ${IMAGE_NAME} --load .
