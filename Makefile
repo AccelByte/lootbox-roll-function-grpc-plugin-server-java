@@ -1,24 +1,15 @@
-# Copyright (c) 2022 AccelByte Inc. All Rights Reserved.
+# Copyright (c) 2024 AccelByte Inc. All Rights Reserved.
 # This is licensed software from AccelByte Inc, for limitations
 # and restrictions contact your company contract manager.
 
 SHELL := /bin/bash
 
+GRADLE_IMAGE := gradle:7.6.4-jdk17
+
 IMAGE_NAME := $(shell basename "$$(pwd)")-app
 BUILDER := extend-builder
 
-TEST_SAMPLE_CONTAINER_NAME := sample-override-test
-
-.PHONY: clean build
-
-clean:
-	docker run -t --rm \
-			-u $$(id -u):$$(id -g) \
-			-v $$(pwd):/data \
-			-w /data \
-			-e GRADLE_USER_HOME=.gradle \
-			gradle:7.6.4-jdk17 \
-			gradle -i --no-daemon clean
+.PHONY: build
 
 build:
 	docker run -t --rm \
@@ -26,7 +17,7 @@ build:
 			-v $$(pwd):/data \
 			-w /data \
 			-e GRADLE_USER_HOME=.gradle \
-			gradle:7.6.4-jdk17 \
+			$(GRADLE_IMAGE) \
 			gradle -i --no-daemon generateProto \
 					|| find .gradle -type f -iname 'protoc-*.exe' -exec chmod +x {} \;		# For MacOS docker host: Workaround to make protoc-*.exe executable
 	docker run -t --rm \
@@ -34,8 +25,17 @@ build:
 			-v $$(pwd):/data \
 			-w /data \
 			-e GRADLE_USER_HOME=.gradle \
-			gradle:7.6.4-jdk17 \
+			$(GRADLE_IMAGE) \
 			gradle -i --no-daemon build
+
+clean:
+	docker run -t --rm \
+			-u $$(id -u):$$(id -g) \
+			-v $$(pwd):/data \
+			-w /data \
+			-e GRADLE_USER_HOME=.gradle \
+			$(GRADLE_IMAGE) \
+			gradle -i --no-daemon clean
 
 image:
 	docker buildx build -t ${IMAGE_NAME} --load .
