@@ -10,11 +10,7 @@ BUILD_CACHE_VOLUME := $(shell echo '$(PROJECT_NAME)' | sed 's/[^a-zA-Z0-9_-]//g'
 
 .PHONY: build
 
-build:
-	docker run -t --rm \
-			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
-			$(GRADLE_IMAGE) \
-			chown $$(id -u):$$(id -g) /tmp/build-cache		# For MacOS docker host: Workaround for /tmp/build-cache folder owned by root
+build: prepare_build_cache
 	docker run -t --rm \
 			-u $$(id -u):$$(id -g) \
 			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
@@ -29,11 +25,7 @@ build:
 					--no-daemon \
 					build
 
-clean:
-	docker run -t --rm \
-			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
-			$(GRADLE_IMAGE) \
-			chown $$(id -u):$$(id -g) /tmp/build-cache		# For MacOS docker host: Workaround for /tmp/build-cache folder owned by root
+clean: prepare_build_cache
 	docker run -t --rm \
 			-u $$(id -u):$$(id -g) \
 			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
@@ -47,3 +39,9 @@ clean:
 					--info \
 					--no-daemon \
 					clean
+
+prepare_build_cache:
+	docker run -t --rm \
+			-v $(BUILD_CACHE_VOLUME):/tmp/build-cache \
+			busybox:1.37.0 \
+			chown $$(id -u):$$(id -g) /tmp/build-cache		# Fix /tmp/build-cache folder owned by root
