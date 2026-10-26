@@ -1,3 +1,15 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Keep the Spring Boot stack on one version. The Boot starters, the Boot Gradle plugin, io.spring.dependency-management and the lognet gRPC plugin are version-coupled: Boot 3.x requires Java 17 and lognet 5.x. Bumping one starter alone either fails resolution against sourceCompatibility, or silently resolves back to the BOM version and ships no fix at all, because the starters are POM-only aggregators.",
+      "groupName": "spring boot",
+      "matchPackageNames": [
+        "org.springframework.boot",
+        "org.springframework.boot:*",
+        "io.spring.dependency-management",
+        "io.github.lognet.grpc-spring-boot"
+      ]
+    }
+  ]
 }
