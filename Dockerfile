@@ -1,6 +1,6 @@
 # gRPC server builder
 
-FROM --platform=$BUILDPLATFORM gradle:7.6.4-jdk17 AS builder
+FROM --platform=$BUILDPLATFORM gradle:9.6.0-jdk17 AS builder
 WORKDIR /build
 COPY gradle gradle
 COPY gradlew settings.gradle .
@@ -12,7 +12,7 @@ RUN sh gradlew build -i
 
 # Extend Override app
 
-FROM amazoncorretto:17-alpine3.21
+FROM amazoncorretto:25-alpine3.21
 WORKDIR /app
 COPY jars/aws-opentelemetry-agent.jar aws-opentelemetry-agent.jar
 COPY --from=builder /build/target/*.jar app.jar
